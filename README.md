@@ -9,7 +9,7 @@ Most of the complex PostgreSQL types are not supported, namely arrays. Consequen
 | `consume_json` | Implements `consume_json` on classes that derive the `RowConsumer` trait | serde, serde_json | No |
 | `json` | Implements `from_row` on `serde_json::Value` | serde_json | No |
 
-## Example
+## Examples
 ### `consume`
 You may use `consume` to consume PostgreSQL row data into a struct like so:
 ```

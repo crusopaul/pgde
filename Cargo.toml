@@ -1,6 +1,6 @@
 [package]
 name = "pgde"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Paul Caruso <crusopaul@gmail.com>"]
 license = "MIT"
 edition = "2021"

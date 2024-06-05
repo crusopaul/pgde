@@ -286,7 +286,7 @@ pg_type_implementation![bool, i8, i16, i32, u32, i64, f32, f64, String];
 pg_type_implementation![uuid::Uuid];
 
 #[cfg(feature = "json")]
-pg_type_expr_implementation![serde_json::Value, serde_json::Value::default()];
+pg_type_implementation![serde_json::Value];
 
 pg_type_expr_implementation![
     SystemTime,

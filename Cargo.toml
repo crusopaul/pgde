@@ -4,12 +4,12 @@ version = "0.1.0"
 authors = ["Paul Caruso <crusopaul@gmail.com>"]
 license = "MIT"
 edition = "2021"
-publish = false
 homepage = "https://github.com/crusopaul/pgde/"
 repository = "https://github.com/crusopaul/pgde/"
 description = "A macro library for consuming PostgreSQL row data into structs."
 readme = "README.md"
 keywords = ["postgresql"]
+exclude = [ ".gitignore" ]
 
 [features]
 consume_json = ["serde", "serde_json"]

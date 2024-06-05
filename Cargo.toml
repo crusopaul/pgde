@@ -1,0 +1,17 @@
+[package]
+name = "pgde"
+version = "0.1.0"
+authors = ["Paul Caruso <crusopaul@gmail.com>"]
+license = "MIT"
+edition = "2021"
+publish = false
+description = "A macro library for consuming PostgreSQL row data into structs."
+
+[features]
+consume_json = ["serde", "serde_json"]
+json = ["serde_json", "tokio-postgres/with-serde_json-1"]
+
+[dependencies]
+serde = { version = "1.0.0", optional = true }
+serde_json = { version = "1.0.0", optional = true }
+tokio-postgres = { version = "0.7.0" }

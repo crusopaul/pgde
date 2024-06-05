@@ -9,7 +9,6 @@ repository = "https://github.com/crusopaul/pgde/"
 description = "A macro library for consuming PostgreSQL row data into structs."
 readme = "README.md"
 keywords = ["postgresql"]
-exclude = [ ".gitignore" ]
 
 [features]
 consume_json = ["serde", "serde_json"]

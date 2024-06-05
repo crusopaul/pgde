@@ -1,15 +1,14 @@
-//! A simple library for consuming `tokio_postgres::row::Row` data into structs that
-//! derive the `RowConsumer` trait.
+//! A simple library for consuming `tokio_postgres::row::Row` data into structs that derive the `RowConsumer` trait.
 //!
-//! Most of the complex PostgreSQL types are not supported, namely arrays. Consequently
-//! `Vec` types on structs are not currently supported.
+//! Most of the complex PostgreSQL types are not supported, namely arrays. Consequently `Vec` types on structs are not currently supported.
 //!
 //! ## Features
 //!
 //! | Feature | Description | Extra dependencies | Default |
 //! | ------- | ----------- | ------------------ | ------- |
 //! | `consume_json` | Implements `consume_json` on classes that derive the `RowConsumer` trait | serde, serde_json | No |
-//! | `json` | Implements `from_row` on `serde_json::Value` | serde_json | No |
+//! | `json` | Implements `consume` on `serde_json::Value` | serde_json | No |
+//! | `uuid` | Implements `consume` on `uuid::Uuid` | uuid | No |
 //!
 //! ## Examples
 //! ### `consume`
@@ -31,17 +30,22 @@
 //! };
 //! ```
 //!
-//! This crate implements `from_row` on the following types so that `consume` can be used
-//! in a similar fashion
-//! - `bool`
-//! - `i8`
-//! - `i16`
-//! - `i32`
-//! - `u32`
-//! - `i64`
-//! - `f32`
-//! - `f64`
-//! - `String`
+//! This crate implements `from_row` on the following types so that `consume` can be used in a similar fashion
+//! | Type | Feature |
+//! | ---- | ------- |
+//! | `bool` | `default` |
+//! | `i8` | `default` |
+//! | `i16` | `default` |
+//! | `i32` | `default` |
+//! | `u32` | `default` |
+//! | `i64` | `default` |
+//! | `f32` | `default` |
+//! | `f64` | `default` |
+//! | `String` | `default` |
+//! | `SystemTime` | `default` |
+//! | `IpAddr` | `default` |
+//! | `serde_json::Value` | `json` |
+//! | `uuid::Uuid` | `uuid` |
 //!
 //! ```
 //! let query = "select Id from public.\"Foo\";";
@@ -53,11 +57,9 @@
 //! ```
 //!
 //! ### Features
-//! The `json` feature provides `consume` on `serde_json::Value` for json data types in
-//! PostgreSQL.
+//! The `json` and `uuid` features provide `consume` on `serde_json::Value` and `uuid::Uuid` for json and uuid data types in PostgreSQL.
 //!
-//! With the `consume_json` feature you get access to `consume_json`, which returns json
-//! data in a `String`.
+//! With the `consume_json` feature you get access to `consume_json`, which returns json data in a `String`.
 //! ```
 //! #[derive(Serialize, RowConsumer)]
 //! struct Foo { ... }
@@ -278,6 +280,9 @@ macro_rules! pg_type_expr_implementation {
 }
 
 pg_type_implementation![bool, i8, i16, i32, u32, i64, f32, f64, String];
+
+#[cfg(feature = "uuid")]
+pg_type_implementation![uuid::Uuid];
 
 #[cfg(feature = "json")]
 pg_type_expr_implementation![serde_json::Value, serde_json::Value::default()];

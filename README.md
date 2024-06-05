@@ -7,7 +7,8 @@ Most of the complex PostgreSQL types are not supported, namely arrays. Consequen
 | Feature | Description | Extra dependencies | Default |
 | ------- | ----------- | ------------------ | ------- |
 | `consume_json` | Implements `consume_json` on classes that derive the `RowConsumer` trait | serde, serde_json | No |
-| `json` | Implements `from_row` on `serde_json::Value` | serde_json | No |
+| `json` | Implements `consume` on `serde_json::Value` | serde_json | No |
+| `uuid` | Implements `consume` on `uuid::Uuid` | uuid | No |
 
 ## Examples
 ### `consume`
@@ -30,15 +31,21 @@ match Foo::consume(conn, query, &[]).await {
 ```
 
 This crate implements `from_row` on the following types so that `consume` can be used in a similar fashion
-- `bool`
-- `i8`
-- `i16`
-- `i32`
-- `u32`
-- `i64`
-- `f32`
-- `f64`
-- `String`
+| Type | Feature |
+| ---- | ------- |
+| `bool` | `default` |
+| `i8` | `default` |
+| `i16` | `default` |
+| `i32` | `default` |
+| `u32` | `default` |
+| `i64` | `default` |
+| `f32` | `default` |
+| `f64` | `default` |
+| `String` | `default` |
+| `SystemTime` | `default` |
+| `IpAddr` | `default` |
+| `serde_json::Value` | `json` |
+| `uuid::Uuid` | `uuid` |
 
 ```
 let query = "select Id from public.\"Foo\";";
@@ -50,7 +57,7 @@ match i32::consume(conn, query, &[]).await {
 ```
 
 ### Features
-The `json` feature provides `consume` on `serde_json::Value` for json data types in PostgreSQL.
+The `json` and `uuid` features provide `consume` on `serde_json::Value` and `uuid::Uuid` for json and uuid data types in PostgreSQL.
 
 With the `consume_json` feature you get access to `consume_json`, which returns json data in a `String`.
 ```

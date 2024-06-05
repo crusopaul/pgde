@@ -30,7 +30,8 @@ match Foo::consume(conn, query, &[]).await {
 };
 ```
 
-This crate implements `from_row` on the following types so that `consume` can be used in a similar fashion
+This crate implements `from_row` on the following types so that `consume` can be used in a similar fashion.
+
 | Type | Feature |
 | ---- | ------- |
 | `bool` | `default` |

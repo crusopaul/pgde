@@ -169,7 +169,7 @@ pub trait RowConsumer {
     /// Consumes row data from provided connection, query, and parameters. Provides no
     /// data on error, instead provides a [ConsumeError] enum.
     fn consume(
-        conn: Client,
+        conn: &Client,
         query: &str,
         params: &[&(dyn ToSql + Sync)],
     ) -> impl Future<Output = Result<Vec<Self>, ConsumeError>> + Send
@@ -191,7 +191,7 @@ pub trait RowConsumer {
     /// error returns `serde_json::Value::Null`.
     #[cfg(feature = "consume_json")]
     fn consume_json(
-        conn: Client,
+        conn: &Client,
         query: &str,
         params: &[&(dyn ToSql + Sync)],
     ) -> impl Future<Output = Result<String, String>> + Send

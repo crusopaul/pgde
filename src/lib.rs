@@ -79,9 +79,9 @@
 //! | Environment Variable | Description |
 //! | -------------------- | ----------- |
 //! | `PGDE_DB_HOST` | The host that the database can be accessed at. |
-//! | `PGDE_DB_USER` | The user credential to provide. |
-//! | `PGDE_DB_PASSWORD` | The password to provide. |
-//! | `PGDE_DB_NAME` | The name of the database to use for testing. |
+//! | `POSTGRES_USER` | The user credential to provide. |
+//! | `POSTGRES_PASSWORD` | The password to provide. |
+//! | `POSTGRES_DB` | The name of the database to use for testing. |
 //!
 //! To test, you would then run.
 //! ```

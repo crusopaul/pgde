@@ -8,15 +8,31 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  PGDE_DB_HOST: localhost
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: password
+  POSTGRES_DB: postgres
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     steps:
     - uses: actions/checkout@v4
     - name: Build
-      run: cargo build --verbose
+      run: cargo build --verbose --all-features
     - name: Run tests
-      run: cargo test --lib --verbose
+      run: cargo test --tests --verbose --all-features

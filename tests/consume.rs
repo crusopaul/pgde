@@ -1,7 +1,11 @@
 //! Attempts to test a variety of `consume` scenarios for data types mentioned in the provided `FromSql` type implementations from postgres_types.
 use pgde::RowConsumer;
+use serde_json::json;
+use std::net::IpAddr;
+use std::net::Ipv4Addr;
 use std::time::SystemTime;
 use tokio_postgres::{Client, NoTls};
+use uuid::Uuid;
 
 async fn connect_to_database() -> Result<Client, ()> {
     let conn_string = format!(
@@ -633,6 +637,199 @@ async fn consume_system_time() -> Result<(), String> {
                             Err(_) => {
                                 Err(String::from("Could not consume timestamp into SystemTime"))
                             }
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[tokio::test]
+async fn consume_ip() -> Result<(), String> {
+    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
+    assert_ne!(DATABASE_USER, "bad", "No database user provided");
+    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
+    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_ip (
+                    field1 inet
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                match v
+                    .query(
+                        "insert into public.\"consume_ip\" values ( $1 );",
+                        &[&IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1))],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match IpAddr::consume(&v, "select field1 from public.\"consume_ip\";", &[])
+                            .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value,
+                                        IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1)),
+                                        "Could not consume inet into IpAddr"
+                                    );
+                                    Ok(())
+                                }
+                                None => Err(String::from("Could not consume inet into IpAddr")),
+                            },
+                            Err(_) => Err(String::from("Could not consume inet into IpAddr")),
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[tokio::test]
+async fn consume_uuid() -> Result<(), String> {
+    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
+    assert_ne!(DATABASE_USER, "bad", "No database user provided");
+    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
+    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_uuid (
+                    field1 uuid
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                let test_uuid = Uuid::new_v4();
+
+                match v
+                    .query(
+                        "insert into public.\"consume_uuid\" values ( $1 );",
+                        &[&test_uuid],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match Uuid::consume(&v, "select field1 from public.\"consume_uuid\";", &[])
+                            .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value, test_uuid,
+                                        "Could not consume uuid into Uuid"
+                                    );
+                                    Ok(())
+                                }
+                                None => Err(String::from("Could not consume uuid into Uuid")),
+                            },
+                            Err(_) => Err(String::from("Could not consume uuid into Uuid")),
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[tokio::test]
+async fn consume_json() -> Result<(), String> {
+    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
+    assert_ne!(DATABASE_USER, "bad", "No database user provided");
+    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
+    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_json (
+                    field1 json,
+                    field2 jsonb
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                let john = json!({
+                    "name": "John Doe",
+                    "age": 43,
+                    "phones": [
+                        "+44 1234567",
+                        "+44 2345678"
+                    ]
+                });
+
+                match v
+                    .query(
+                        "insert into public.\"consume_json\" values ( $1, $2 );",
+                        &[&john, &john],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match serde_json::Value::consume(
+                            &v,
+                            "select field1 from public.\"consume_json\";",
+                            &[],
+                        )
+                        .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value, john,
+                                        "Could not consume json into Value"
+                                    );
+
+                                    match serde_json::Value::consume(
+                                        &v,
+                                        "select field2 from public.\"consume_json\";",
+                                        &[],
+                                    )
+                                    .await
+                                    {
+                                        Ok(result) => match result.last() {
+                                            Some(result_value) => {
+                                                assert_eq!(
+                                                    *result_value, john,
+                                                    "Could not consume jsonb into Value"
+                                                );
+                                                Ok(())
+                                            }
+                                            None => Err(String::from(
+                                                "Could not consume jsonb into Value",
+                                            )),
+                                        },
+                                        Err(_) => {
+                                            Err(String::from("Could not consume jsonb into Value"))
+                                        }
+                                    }
+                                }
+                                None => Err(String::from("Could not consume json into Value")),
+                            },
+                            Err(_) => Err(String::from("Could not consume json into Value")),
                         }
                     }
                     Err(v) => Err(v.to_string()),

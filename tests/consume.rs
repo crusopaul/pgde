@@ -1,10 +1,12 @@
 //! Attempts to test a variety of `consume` scenarios for data types mentioned in the provided `FromSql` type implementations from postgres_types.
 use pgde::RowConsumer;
+#[cfg(feature = "json")]
 use serde_json::json;
 use std::net::IpAddr;
 use std::net::Ipv4Addr;
 use std::time::SystemTime;
 use tokio_postgres::{Client, NoTls};
+#[cfg(feature = "uuid")]
 use uuid::Uuid;
 
 async fn connect_to_database() -> Result<Client, ()> {
@@ -701,6 +703,7 @@ async fn consume_ip() -> Result<(), String> {
 }
 
 #[tokio::test]
+#[cfg(feature = "uuid")]
 async fn consume_uuid() -> Result<(), String> {
     assert_ne!(DATABASE_HOST, "bad", "No database host provided");
     assert_ne!(DATABASE_USER, "bad", "No database user provided");
@@ -754,6 +757,7 @@ async fn consume_uuid() -> Result<(), String> {
 }
 
 #[tokio::test]
+#[cfg(feature = "json")]
 async fn consume_json() -> Result<(), String> {
     assert_ne!(DATABASE_HOST, "bad", "No database host provided");
     assert_ne!(DATABASE_USER, "bad", "No database user provided");

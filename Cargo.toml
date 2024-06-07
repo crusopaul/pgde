@@ -4,7 +4,6 @@ version = "0.2.0"
 authors = ["Paul Caruso <crusopaul@gmail.com>"]
 license = "MIT"
 edition = "2021"
-homepage = "https://github.com/crusopaul/pgde/"
 repository = "https://github.com/crusopaul/pgde/"
 description = "A macro library for consuming PostgreSQL row data into structs."
 readme = "README.md"

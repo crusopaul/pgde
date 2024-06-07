@@ -37,17 +37,17 @@ const DATABASE_HOST: &str = match option_env!("PGDE_DB_HOST") {
     None => "bad",
 };
 
-const DATABASE_USER: &str = match option_env!("PGDE_DB_USER") {
+const DATABASE_USER: &str = match option_env!("POSTGRES_USER") {
     Some(v) => v,
     None => "bad",
 };
 
-const DATABASE_PASSWORD: &str = match option_env!("PGDE_DB_PASSWORD") {
+const DATABASE_PASSWORD: &str = match option_env!("POSTGRES_PASSWORD") {
     Some(v) => v,
     None => "bad",
 };
 
-const DATABASE_NAME: &str = match option_env!("PGDE_DB_NAME") {
+const DATABASE_NAME: &str = match option_env!("POSTGRES_DB") {
     Some(v) => v,
     None => "bad",
 };

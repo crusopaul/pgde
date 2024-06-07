@@ -12,7 +12,7 @@
 //!
 //! ## Examples
 //! ### `consume`
-//! You may use `consume` to consume PostgreSQL row data into a struct like so:
+//! You may use `consume` to consume PostgreSQL row data into a struct like so.
 //! ```
 //! #[derive(RowConsumer)]
 //! struct Foo {
@@ -24,7 +24,7 @@
 //!
 //! let query = "select * from public.\"Foo\";";
 //!
-//! match Foo::consume(conn, query, &[]).await {
+//! match Foo::consume(&conn, query, &[]).await {
 //!     Ok(v) => ..., // v is of type Vec<Foo>
 //!     Err(v) => ...,
 //! };
@@ -51,7 +51,7 @@
 //! ```
 //! let query = "select Id from public.\"Foo\";";
 //!
-//! match i32::consume(conn, query, &[]).await {
+//! match i32::consume(&conn, query, &[]).await {
 //!     Ok(v) => ..., // v is of type Vec<i32>
 //!     Err(v) => ...,
 //! };
@@ -67,10 +67,25 @@
 //!
 //! ...
 //!
-//! match Foo::consume_json(conn, query, &[]).await {
+//! match Foo::consume_json(&conn, query, &[]).await {
 //!     Ok(v) => ..., // v is of type String
 //!     Err(v) => ...,
 //! };
+//! ```
+//!
+//! ## Testing
+//! Testing requires access to a PostgreSQL database with no tables. Setting the following environment variables will allow you to test.
+//!
+//! | Environment Variable | Description |
+//! | -------------------- | ----------- |
+//! | `PGDE_DB_HOST` | The host that the database can be accessed at. |
+//! | `PGDE_DB_USER` | The user credential to provide. |
+//! | `PGDE_DB_PASSWORD` | The password to provide. |
+//! | `PGDE_DB_NAME` | The name of the database to use for testing. |
+//!
+//! To test, you would then run.
+//! ```
+//! cargo test --tests --all-features
 //! ```
 #[cfg(feature = "consume_json")]
 use serde::Serialize;

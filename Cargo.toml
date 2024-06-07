@@ -16,7 +16,7 @@ uuid = ["dep:uuid", "tokio-postgres/with-uuid-1"]
 
 [dependencies]
 pgde_derive = { version = "0.1.0" }
-serde = { version = "1.0.0", optional = true }
+serde = { version = "1.0.0", features = ["derive"], optional = true }
 serde_json = { version = "1.0.0", optional = true }
 tokio-postgres = { version = "0.7.0" }
 uuid = { version = "1.8.0", features = ["v4"], optional = true }

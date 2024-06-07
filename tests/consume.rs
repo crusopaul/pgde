@@ -1,10 +1,16 @@
 //! Attempts to test a variety of `consume` scenarios for data types mentioned in the provided `FromSql` type implementations from postgres_types.
 use pgde::RowConsumer;
+#[cfg(feature = "consume_json")]
+use pgde_derive::RowConsumer;
+#[cfg(feature = "consume_json")]
+use serde::Serialize;
 #[cfg(feature = "json")]
 use serde_json::json;
 use std::net::IpAddr;
 use std::net::Ipv4Addr;
 use std::time::SystemTime;
+#[cfg(feature = "consume_json")]
+use tokio_postgres::Row;
 use tokio_postgres::{Client, NoTls};
 #[cfg(feature = "uuid")]
 use uuid::Uuid;
@@ -840,6 +846,36 @@ async fn consume_json() -> Result<(), String> {
                 }
             }
             Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[tokio::test]
+#[cfg(feature = "consume_json")]
+async fn consume_json_impl() -> Result<(), String> {
+    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
+    assert_ne!(DATABASE_USER, "bad", "No database user provided");
+    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
+    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+
+    #[derive(Serialize, RowConsumer)]
+    struct Foo {
+        foo: i32,
+        bar: i32,
+    }
+
+    match connect_to_database().await {
+        Ok(v) => match Foo::consume_json(&v, "select 1, 2;", &[]).await {
+            Ok(result) => {
+                assert_eq!(
+                    *result,
+                    String::from("[{\"foo\":1,\"bar\":2}]"),
+                    "Could not consume_json into struct"
+                );
+                Ok(())
+            }
+            Err(_) => Err(String::from("Could not consume_json into struct")),
         },
         Err(_) => Err(String::from("Could not connect to database")),
     }

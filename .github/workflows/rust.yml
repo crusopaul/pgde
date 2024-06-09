@@ -44,13 +44,13 @@ jobs:
     - name: Build all features
       run: cargo build --all-features
     - name: Test base
-      run: cargo test
+      run: cargo test --tests
     - name: Test features independently
       run: |
         cargo test -Fconsume_json
-        cargo test -Fgeo
-        cargo test -Fmac
-        cargo test -Fjson
-        cargo test -Fuuid
+        cargo test --tests -Fgeo
+        cargo test --tests -Fmac
+        cargo test --tests -Fjson
+        cargo test --tests -Fuuid
     - name: Test all features
       run: cargo test --all-features

@@ -1,4 +1,14 @@
 //! Attempts to test a variety of `consume` scenarios for data types mentioned in the provided `FromSql` type implementations from postgres_types.
+#[cfg(feature = "mac")]
+use eui48::MacAddress;
+#[cfg(feature = "geo")]
+use geo_types::coord;
+#[cfg(feature = "geo")]
+use geo_types::line_string;
+#[cfg(feature = "geo")]
+use geo_types::point;
+#[cfg(feature = "geo")]
+use geo_types::Rect;
 use pgde::RowConsumer;
 #[cfg(feature = "consume_json")]
 use pgde_derive::RowConsumer;
@@ -146,6 +156,7 @@ async fn consume_boolean() -> Result<(), String> {
                                             *result_value, false,
                                             "Could not consume boolean into bool"
                                         );
+
                                         Ok(())
                                     }
                                     None => {
@@ -256,6 +267,7 @@ async fn consume_i16() -> Result<(), String> {
                                                 *result_value, 9,
                                                 "Could not consume smallserial into i16"
                                             );
+
                                             Ok(())
                                         }
                                         None => Err(String::from(
@@ -325,6 +337,7 @@ async fn consume_i32() -> Result<(), String> {
                                                 *result_value, 32768,
                                                 "Could not consume serial into i32"
                                             );
+
                                             Ok(())
                                         }
                                         None => {
@@ -439,6 +452,7 @@ async fn consume_i64() -> Result<(), String> {
                                                 *result_value, 2147483648,
                                                 "Could not consume bigserial into i64"
                                             );
+
                                             Ok(())
                                         }
                                         None => Err(String::from(
@@ -581,6 +595,7 @@ async fn consume_string() -> Result<(), String> {
                                     *result_value, "hello world",
                                     "Could not consume char into String"
                                 );
+
                                 Ok(())
                             }
                             None => Err(String::from("Could not consume char into String")),
@@ -590,6 +605,63 @@ async fn consume_string() -> Result<(), String> {
                 }
                 Err(v) => Err(v.to_string()),
             },
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[tokio::test]
+async fn consume_vec_u8() -> Result<(), String> {
+    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
+    assert_ne!(DATABASE_USER, "bad", "No database user provided");
+    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
+    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_vec_u8 (
+                    field1 bytea
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                match v
+                    .query(
+                        "insert into public.\"consume_vec_u8\" values ( '\\x1234'::bytea );",
+                        &[],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match Vec::<u8>::consume(
+                            &v,
+                            "select field1 from public.\"consume_vec_u8\";",
+                            &[],
+                        )
+                        .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value,
+                                        vec![0x12_u8, 0x34_u8,],
+                                        "Could not consume bytea into Vec<u8>"
+                                    );
+
+                                    Ok(())
+                                }
+                                None => Err(String::from("Could not consume bytea into Vec<u8>")),
+                            },
+                            Err(_) => Err(String::from("Could not consume bytea into Vec<u8>")),
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
             Err(v) => Err(v.to_string()),
         },
         Err(_) => Err(String::from("Could not connect to database")),
@@ -692,6 +764,7 @@ async fn consume_ip() -> Result<(), String> {
                                         IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1)),
                                         "Could not consume inet into IpAddr"
                                     );
+
                                     Ok(())
                                 }
                                 None => Err(String::from("Could not consume inet into IpAddr")),
@@ -709,8 +782,8 @@ async fn consume_ip() -> Result<(), String> {
 }
 
 #[tokio::test]
-#[cfg(feature = "uuid")]
-async fn consume_uuid() -> Result<(), String> {
+#[cfg(feature = "mac")]
+async fn consume_macaddress() -> Result<(), String> {
     assert_ne!(DATABASE_HOST, "bad", "No database host provided");
     assert_ne!(DATABASE_USER, "bad", "No database user provided");
     assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
@@ -719,38 +792,233 @@ async fn consume_uuid() -> Result<(), String> {
     match connect_to_database().await {
         Ok(v) => match v
             .query(
-                "create table if not exists consume_uuid (
-                    field1 uuid
+                "create table if not exists consume_macaddress (
+                    field1 macaddr
                 );",
                 &[],
             )
             .await
         {
             Ok(_) => {
-                let test_uuid = Uuid::new_v4();
+                let test_macaddr = MacAddress::new([12_u8, 34_u8, 56_u8, 78_u8, 90_u8, 12_u8]);
 
                 match v
                     .query(
-                        "insert into public.\"consume_uuid\" values ( $1 );",
-                        &[&test_uuid],
+                        "insert into public.\"consume_macaddress\" values ( $1 );",
+                        &[&test_macaddr],
                     )
                     .await
                 {
                     Ok(_) => {
-                        match Uuid::consume(&v, "select field1 from public.\"consume_uuid\";", &[])
-                            .await
+                        match MacAddress::consume(
+                            &v,
+                            "select field1 from public.\"consume_macaddress\";",
+                            &[],
+                        )
+                        .await
                         {
                             Ok(result) => match result.last() {
                                 Some(result_value) => {
                                     assert_eq!(
-                                        *result_value, test_uuid,
-                                        "Could not consume uuid into Uuid"
+                                        *result_value, test_macaddr,
+                                        "Could not consume macaddr into MacAddress"
                                     );
+
                                     Ok(())
                                 }
-                                None => Err(String::from("Could not consume uuid into Uuid")),
+                                None => {
+                                    Err(String::from("Could not consume macaddr into MacAddress"))
+                                }
                             },
-                            Err(_) => Err(String::from("Could not consume uuid into Uuid")),
+                            Err(_) => {
+                                Err(String::from("Could not consume macaddr into MacAddress"))
+                            }
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[tokio::test]
+#[cfg(feature = "geo")]
+async fn consume_point() -> Result<(), String> {
+    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
+    assert_ne!(DATABASE_USER, "bad", "No database user provided");
+    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
+    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_point (
+                    field1 point
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                let test_point = point! { x: 1.5, y: -1.5};
+
+                match v
+                    .query(
+                        "insert into public.\"consume_point\" values ( $1 );",
+                        &[&test_point],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match geo_types::Point::<f64>::consume(
+                            &v,
+                            "select field1 from public.\"consume_point\";",
+                            &[],
+                        )
+                        .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value, test_point,
+                                        "Could not consume point into Point<f64>"
+                                    );
+
+                                    Ok(())
+                                }
+                                None => {
+                                    Err(String::from("Could not consume point into Point<f64>"))
+                                }
+                            },
+                            Err(_) => Err(String::from("Could not consume point into Point<f64>")),
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[tokio::test]
+#[cfg(feature = "geo")]
+async fn consume_rect() -> Result<(), String> {
+    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
+    assert_ne!(DATABASE_USER, "bad", "No database user provided");
+    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
+    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_rect (
+                    field1 box
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                let test_box = Rect::new(coord! { x: 0., y: 4.}, coord! { x: 3., y: 10.});
+
+                match v
+                    .query(
+                        "insert into public.\"consume_rect\" values ( $1 );",
+                        &[&test_box],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match geo_types::Rect::<f64>::consume(
+                            &v,
+                            "select field1 from public.\"consume_rect\";",
+                            &[],
+                        )
+                        .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value, test_box,
+                                        "Could not consume box into Rect<f64>"
+                                    );
+
+                                    Ok(())
+                                }
+                                None => Err(String::from("Could not consume box into Rect<f64>")),
+                            },
+                            Err(_) => Err(String::from("Could not consume box into Rect<f64>")),
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[tokio::test]
+#[cfg(feature = "geo")]
+async fn consume_linestring() -> Result<(), String> {
+    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
+    assert_ne!(DATABASE_USER, "bad", "No database user provided");
+    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
+    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_linestring (
+                    field1 path
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                let test_linestring = line_string![
+                    (x: 0., y: 0.),
+                    (x: 1., y: 1.),
+                ];
+
+                match v
+                    .query(
+                        "insert into public.\"consume_linestring\" values ( $1 );",
+                        &[&test_linestring],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match geo_types::LineString::<f64>::consume(
+                            &v,
+                            "select field1 from public.\"consume_linestring\";",
+                            &[],
+                        )
+                        .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value, test_linestring,
+                                        "Could not consume path into LineString<f64>"
+                                    );
+
+                                    Ok(())
+                                }
+                                None => {
+                                    Err(String::from("Could not consume path into LineString<f64>"))
+                                }
+                            },
+                            Err(_) => {
+                                Err(String::from("Could not consume path into LineString<f64>"))
+                            }
                         }
                     }
                     Err(v) => Err(v.to_string()),
@@ -826,6 +1094,7 @@ async fn consume_json() -> Result<(), String> {
                                                     *result_value, john,
                                                     "Could not consume jsonb into Value"
                                                 );
+
                                                 Ok(())
                                             }
                                             None => Err(String::from(
@@ -840,6 +1109,61 @@ async fn consume_json() -> Result<(), String> {
                                 None => Err(String::from("Could not consume json into Value")),
                             },
                             Err(_) => Err(String::from("Could not consume json into Value")),
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[tokio::test]
+#[cfg(feature = "uuid")]
+async fn consume_uuid() -> Result<(), String> {
+    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
+    assert_ne!(DATABASE_USER, "bad", "No database user provided");
+    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
+    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_uuid (
+                    field1 uuid
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                let test_uuid = Uuid::new_v4();
+
+                match v
+                    .query(
+                        "insert into public.\"consume_uuid\" values ( $1 );",
+                        &[&test_uuid],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match Uuid::consume(&v, "select field1 from public.\"consume_uuid\";", &[])
+                            .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value, test_uuid,
+                                        "Could not consume uuid into Uuid"
+                                    );
+
+                                    Ok(())
+                                }
+                                None => Err(String::from("Could not consume uuid into Uuid")),
+                            },
+                            Err(_) => Err(String::from("Could not consume uuid into Uuid")),
                         }
                     }
                     Err(v) => Err(v.to_string()),
@@ -873,6 +1197,7 @@ async fn consume_json_impl() -> Result<(), String> {
                     String::from("[{\"foo\":1,\"bar\":2}]"),
                     "Could not consume_json into struct"
                 );
+
                 Ok(())
             }
             Err(_) => Err(String::from("Could not consume_json into struct")),

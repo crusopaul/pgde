@@ -42,9 +42,11 @@
 //! | `i64` | `default` |
 //! | `f32` | `default` |
 //! | `f64` | `default` |
+//! | `Vec<u8>` | `default` |
 //! | `String` | `default` |
 //! | `SystemTime` | `default` |
 //! | `IpAddr` | `default` |
+//! | `eui48::MacAddress` | `mac` |
 //! | `serde_json::Value` | `json` |
 //! | `uuid::Uuid` | `uuid` |
 //!
@@ -58,7 +60,13 @@
 //! ```
 //!
 //! ### Features
-//! The `json` and `uuid` features provide `consume` on `serde_json::Value` and `uuid::Uuid` for json and uuid data types in PostgreSQL.
+//! The following features provide `consume` on the corresponding types.
+//!
+//! | Feature | Rust Type |
+//! | ------- | --------- |
+//! | `json` | `serde_json::Value` |
+//! | `mac` | `eui48::MacAddress` |
+//! | `uuid` | `uuid::Uuid` |
 //!
 //! With the `consume_json` feature you get access to `consume_json`, which returns json data in a `String`.
 //! ```

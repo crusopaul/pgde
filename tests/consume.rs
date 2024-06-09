@@ -1,6 +1,14 @@
 //! Attempts to test a variety of `consume` scenarios for data types mentioned in the provided `FromSql` type implementations from postgres_types.
 #[cfg(feature = "mac")]
 use eui48::MacAddress;
+#[cfg(feature = "geo")]
+use geo_types::coord;
+#[cfg(feature = "geo")]
+use geo_types::line_string;
+#[cfg(feature = "geo")]
+use geo_types::point;
+#[cfg(feature = "geo")]
+use geo_types::Rect;
 use pgde::RowConsumer;
 #[cfg(feature = "consume_json")]
 use pgde_derive::RowConsumer;
@@ -824,6 +832,192 @@ async fn consume_macaddress() -> Result<(), String> {
                             },
                             Err(_) => {
                                 Err(String::from("Could not consume macaddr into MacAddress"))
+                            }
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[tokio::test]
+#[cfg(feature = "geo")]
+async fn consume_point() -> Result<(), String> {
+    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
+    assert_ne!(DATABASE_USER, "bad", "No database user provided");
+    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
+    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_point (
+                    field1 point
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                let test_point = point! { x: 1.5, y: -1.5};
+
+                match v
+                    .query(
+                        "insert into public.\"consume_point\" values ( $1 );",
+                        &[&test_point],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match geo_types::Point::<f64>::consume(
+                            &v,
+                            "select field1 from public.\"consume_point\";",
+                            &[],
+                        )
+                        .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value, test_point,
+                                        "Could not consume point into Point<f64>"
+                                    );
+
+                                    Ok(())
+                                }
+                                None => {
+                                    Err(String::from("Could not consume point into Point<f64>"))
+                                }
+                            },
+                            Err(_) => Err(String::from("Could not consume point into Point<f64>")),
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[tokio::test]
+#[cfg(feature = "geo")]
+async fn consume_rect() -> Result<(), String> {
+    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
+    assert_ne!(DATABASE_USER, "bad", "No database user provided");
+    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
+    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_rect (
+                    field1 box
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                let test_box = Rect::new(coord! { x: 0., y: 4.}, coord! { x: 3., y: 10.});
+
+                match v
+                    .query(
+                        "insert into public.\"consume_rect\" values ( $1 );",
+                        &[&test_box],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match geo_types::Rect::<f64>::consume(
+                            &v,
+                            "select field1 from public.\"consume_rect\";",
+                            &[],
+                        )
+                        .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value, test_box,
+                                        "Could not consume box into Rect<f64>"
+                                    );
+
+                                    Ok(())
+                                }
+                                None => Err(String::from("Could not consume box into Rect<f64>")),
+                            },
+                            Err(_) => Err(String::from("Could not consume box into Rect<f64>")),
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[tokio::test]
+#[cfg(feature = "geo")]
+async fn consume_linestring() -> Result<(), String> {
+    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
+    assert_ne!(DATABASE_USER, "bad", "No database user provided");
+    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
+    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_linestring (
+                    field1 path
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                let test_linestring = line_string![
+                    (x: 0., y: 0.),
+                    (x: 1., y: 1.),
+                ];
+
+                match v
+                    .query(
+                        "insert into public.\"consume_linestring\" values ( $1 );",
+                        &[&test_linestring],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match geo_types::LineString::<f64>::consume(
+                            &v,
+                            "select field1 from public.\"consume_linestring\";",
+                            &[],
+                        )
+                        .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value, test_linestring,
+                                        "Could not consume path into LineString<f64>"
+                                    );
+
+                                    Ok(())
+                                }
+                                None => {
+                                    Err(String::from("Could not consume path into LineString<f64>"))
+                                }
+                            },
+                            Err(_) => {
+                                Err(String::from("Could not consume path into LineString<f64>"))
                             }
                         }
                     }

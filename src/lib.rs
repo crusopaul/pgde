@@ -1,5 +1,13 @@
 //! A simple library for consuming `tokio_postgres::row::Row` data into structs that derive the `RowConsumer` trait.
 //!
+//! This crate provides a variety of derivable implementations that can be used to consume PostgreSQL data depending on preference.
+//! - `from_row`
+//! - `from_rows`
+//! - `consume`
+//! - `consume_json` if Feature `consume_json` is enabled
+//!
+//! The latter implementations are built off of `from_row`.
+//!
 //! Most of the complex PostgreSQL types are not supported, namely arrays. Consequently `Vec` types on structs are not currently supported.
 //!
 //! ## Features
@@ -7,30 +15,60 @@
 //! | Feature | Description | Extra dependencies | Default |
 //! | ------- | ----------- | ------------------ | ------- |
 //! | `consume_json` | Implements `consume_json` on classes that derive the `RowConsumer` trait | serde, serde_json | No |
-//! | `json` | Implements `consume` on `serde_json::Value` | serde_json | No |
-//! | `uuid` | Implements `consume` on `uuid::Uuid` | uuid | No |
+//! | `geo` | Implements crate on `geo_types::Point<f64>`, `geo_types::Rect<f64>`, and `geo_types::LineString<f64>` | geo-types | No |
+//! | `mac` | Implements crate on `eui48::MacAddress` | eui48 | No |
+//! | `json` | Implements crate on `serde_json::Value` | serde_json | No |
+//! | `uuid` | Implements crate on `uuid::Uuid` | uuid | No |
 //!
 //! ## Examples
 //! ### `consume`
 //! You may use `consume` to consume PostgreSQL row data into a struct like so.
 //! ```
+//! # tokio_test::block_on(async {
+//! use pgde::ConsumeError;
+//! use pgde::RowConsumer;
+//! use pgde_derive::RowConsumer;
+//! use tokio_postgres::{NoTls, Row};
+//!
 //! #[derive(RowConsumer)]
 //! struct Foo {
 //!     Id: i32,
 //!     Data: String,
 //! }
 //!
-//! ...
+//! match tokio_postgres::connect("host=localhost user=postgres password=password dbname=postgres", NoTls).await {
+//!     Ok(v) => {
+//!         let client = v.0;
+//!         let conn = v.1;
 //!
-//! let query = "select * from public.\"Foo\";";
+//!         tokio::spawn(async move {
+//!             if let Err(e) = conn.await {
+//!                 eprintln!("connection error: {}", e);
+//!             }
+//!         });
 //!
-//! match Foo::consume(&conn, query, &[]).await {
-//!     Ok(v) => ..., // v is of type Vec<Foo>
-//!     Err(v) => ...,
+//!         let query = "select * from public.\"Foo\";";
+//!
+//!         match Foo::consume(&client, query, &[]).await {
+//!             Ok(v) => { // v is of type Vec<Foo>
+//!                 match v.first() {
+//!                     Some(v) => println!("Id {} has Data {}", v.Id, v.Data),
+//!                     None => eprintln!("No data in table"),
+//!                 }
+//!             },
+//!             Err(v) => match v {
+//!                 ConsumeError::ConversionError => eprintln!("Could not convert data"),
+//!                 ConsumeError::DatabaseConnectionError => eprintln!("Database errored on processing the query"),
+//!             },
+//!         };
+//!     },
+//!     Err(_) => eprintln!("Could not connect to database"),
 //! };
+//!
+//! # })
 //! ```
 //!
-//! This crate implements `from_row` on the following types so that `consume` can be used in a similar fashion.
+//! This crate also implements `consume` on the following data types.
 //!
 //! | Type | Feature |
 //! | ---- | ------- |
@@ -46,39 +84,105 @@
 //! | `String` | `default` |
 //! | `SystemTime` | `default` |
 //! | `IpAddr` | `default` |
+//! | `geo_types::Point<f64>` | `geo` |
+//! | `geo_types::Rect<f64>` | `geo` |
+//! | `geo_types::LineString<f64>` | `geo` |
 //! | `eui48::MacAddress` | `mac` |
 //! | `serde_json::Value` | `json` |
 //! | `uuid::Uuid` | `uuid` |
 //!
-//! ```
-//! let query = "select Id from public.\"Foo\";";
+//! Which can be used by doing something like the following.
 //!
-//! match i32::consume(&conn, query, &[]).await {
-//!     Ok(v) => ..., // v is of type Vec<i32>
-//!     Err(v) => ...,
-//! };
 //! ```
+//! # tokio_test::block_on(async {
+//! use pgde::ConsumeError;
+//! use pgde::RowConsumer;
+//! use tokio_postgres::{NoTls, Row};
+//!
+//! match tokio_postgres::connect("host=localhost user=postgres password=password dbname=postgres", NoTls).await {
+//!     Ok(v) => {
+//!         let client = v.0;
+//!         let conn = v.1;
+//!
+//!         tokio::spawn(async move {
+//!             if let Err(e) = conn.await {
+//!                 eprintln!("connection error: {}", e);
+//!             }
+//!         });
+//!
+//!         let query = "select 1;";
+//!
+//!         match i32::consume(&client, query, &[]).await {
+//!             Ok(v) => { // v is of type Vec<i32>
+//!                 match v.first() {
+//!                     Some(v) => println!("1 is {}", *v),
+//!                     None => eprintln!("No data received"),
+//!                 }
+//!             },
+//!             Err(v) => match v {
+//!                 ConsumeError::ConversionError => eprintln!("Could not convert data"),
+//!                 ConsumeError::DatabaseConnectionError => eprintln!("Database errored on processing the query"),
+//!             },
+//!         };
+//!     },
+//!     Err(_) => eprintln!("Could not connect to database"),
+//! };
+//!
+//! # })
+//! ```
+//!
+//! ## Other implementations
+//! The other implementations in this crate, `from_row` and `from_rows`, can be used if their use better matches your preference. Refer to the construction of `from_rows` and `consume` for examples on their uses, respectively.
 //!
 //! ### Features
-//! The following features provide `consume` on the corresponding types.
+//! The following features provide implementations on the corresponding types.
 //!
 //! | Feature | Rust Type |
 //! | ------- | --------- |
+//! | `geo` | `geo_types::Point<f64>`, `geo_types::Rect<f64>`, `geo_types::LineString<f64>` |
 //! | `json` | `serde_json::Value` |
 //! | `mac` | `eui48::MacAddress` |
 //! | `uuid` | `uuid::Uuid` |
 //!
 //! With the `consume_json` feature you get access to `consume_json`, which returns json data in a `String`.
 //! ```
+//! # tokio_test::block_on(async {
+//! use pgde::ConsumeError;
+//! use pgde::RowConsumer;
+//! use pgde_derive::RowConsumer;
+//! use serde::Serialize;
+//! use tokio_postgres::{NoTls, Row};
+//!
 //! #[derive(Serialize, RowConsumer)]
-//! struct Foo { ... }
+//! struct Foo {
+//!     Id: i32,
+//!     Data: String,
+//! }
 //!
-//! ...
+//! match tokio_postgres::connect("host=localhost user=postgres password=password dbname=postgres", NoTls).await {
+//!     Ok(v) => {
+//!         let client = v.0;
+//!         let conn = v.1;
 //!
-//! match Foo::consume_json(&conn, query, &[]).await {
-//!     Ok(v) => ..., // v is of type String
-//!     Err(v) => ...,
+//!         tokio::spawn(async move {
+//!             if let Err(e) = conn.await {
+//!                 eprintln!("connection error: {}", e);
+//!             }
+//!         });
+//!
+//!         let query = "select * from public.\"Foo\";";
+//!
+//!         match Foo::consume_json(&client, query, &[]).await {
+//!             Ok(v) => { // v is of type String
+//!                 println!("Received json data...\n{}", v);
+//!             },
+//!             Err(v) => eprintln!("An error occurred while querying database"),
+//!         };
+//!     },
+//!     Err(_) => eprintln!("Could not connect to database"),
 //! };
+//!
+//! # })
 //! ```
 //!
 //! ## Testing
@@ -90,11 +194,18 @@
 //! | `POSTGRES_USER` | The user credential to provide. |
 //! | `POSTGRES_PASSWORD` | The password to provide. |
 //! | `POSTGRES_DB` | The name of the database to use for testing. |
-//!
-//! To test, you would then run.
-//! ```
-//! cargo test --tests --all-features
-//! ```
+#[cfg(feature = "mac")]
+use eui48::MacAddress;
+#[cfg(feature = "geo")]
+use geo_types::coord;
+#[cfg(feature = "geo")]
+use geo_types::line_string;
+#[cfg(feature = "geo")]
+use geo_types::LineString;
+#[cfg(feature = "geo")]
+use geo_types::Point;
+#[cfg(feature = "geo")]
+use geo_types::Rect;
 #[cfg(feature = "consume_json")]
 use serde::Serialize;
 use std::future::Future;
@@ -104,6 +215,8 @@ use std::time::SystemTime;
 use tokio_postgres::row::Row;
 use tokio_postgres::types::ToSql;
 use tokio_postgres::Client;
+#[cfg(feature = "uuid")]
+use uuid::Uuid;
 
 /// Errors that may occur during row consumption.
 pub enum ConsumeError {
@@ -117,49 +230,6 @@ pub trait RowConsumer {
     /// data into another struct. Upon error, provides field and class information for the
     /// first encountered error in the form of a String as well as partially converted
     /// data.
-    ///
-    /// ## Example
-    /// Provided the following struct `Foo`:
-    /// ```
-    /// #[derive(RowConsumer)]
-    /// struct Foo {
-    ///     Id: i32,
-    ///     Data: String,
-    /// }
-    /// ```
-    /// The pgde_derive crate will implement the following:
-    /// ```
-    /// impl pgde::RowConsumer for Foo {
-    ///     fn from_row(row: Row) -> Result<Foo, (Foo, Vec<String>)>
-    ///     where
-    ///         Foo: Sized,
-    ///     {
-    ///         let mut errors : Vec<String> = Vec::new();
-    ///
-    ///         let result = Foo {
-    ///             Id: match row.try_get::<usize, i32>(0) {
-    ///                 Ok(v) => v,
-    ///                 Err(_) => {
-    ///                     errors.push(format!("Conversion error occurred for field \"{}\" on class \"{}\"", "Id", "Foo"));
-    ///                     i32::default()
-    ///                 },
-    ///             },
-    ///             Data: match row.try_get::<usize, String>(1) {
-    ///                 Ok(v) => v,
-    ///                 Err(_) => {
-    ///                     errors.push(format!("Conversion error occurred for field \"{}\" on class \"{}\"", "Data", "Foo"));
-    ///                     String::default()
-    ///                 },
-    ///             },
-    ///         };
-    ///
-    ///         match errors.first() {
-    ///             None => Ok(result),
-    ///             Some(v) => Err((result, v.to_string())),
-    ///         }
-    ///     }
-    /// }
-    /// ```
     fn from_row(row: Row) -> Result<Self, (Self, Vec<String>)>
     where
         Self: Sized;
@@ -233,13 +303,9 @@ pub trait RowConsumer {
     }
 }
 
-/// A macro for implementing `from_row` on primitive types. Used internally to implement
-/// `from_row` on `bool`, `i32`, `String`, etc.
-///
-/// ## Example
-/// ```
-/// pg_type_implementation![bool]
-/// ```
+/// A macro for implementing `from_row` on primitive types or types outside of this crate
+/// that implement `FromSql`. Used internally to implement `from_row` on `bool`, `i32`,
+/// `String`, etc.
 #[macro_export]
 macro_rules! pg_type_implementation {
     ( $( $x:ty ),* ) => {
@@ -271,14 +337,6 @@ macro_rules! pg_type_implementation {
 
 /// A macro for implementing `from_row` on primitive types that defaults to a provided
 /// expression. Used internally to implement `from_row` on `SystemTime` and `IpAddr`.
-///
-/// ## Example
-/// ```
-/// pg_type_expr_implementation![
-///     SystemTime,
-///     SystemTime::now()
-/// ]
-/// ```
 #[macro_export]
 macro_rules! pg_type_expr_implementation {
     ( $( $x:ty, $y:expr ),* ) => {
@@ -305,18 +363,32 @@ macro_rules! pg_type_expr_implementation {
 
 pg_type_implementation![bool, i8, i16, i32, u32, i64, f32, f64, String, Vec<u8>];
 
-#[cfg(feature = "mac")]
-pg_type_implementation![eui48::MacAddress];
-
-#[cfg(feature = "uuid")]
-pg_type_implementation![uuid::Uuid];
-
-#[cfg(feature = "json")]
-pg_type_implementation![serde_json::Value];
-
 pg_type_expr_implementation![
     SystemTime,
     SystemTime::now(),
     IpAddr,
     IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1))
 ];
+
+#[cfg(feature = "geo")]
+pg_type_implementation![Point<f64>];
+
+#[cfg(feature = "geo")]
+pg_type_expr_implementation![
+    Rect<f64>,
+    Rect::new(coord! { x: 0., y: 0.}, coord! { x: 1., y: 1.},),
+    LineString<f64>,
+    line_string![
+        (x: 0., y: 0.),
+        (x: 1., y: 1.),
+    ]
+];
+
+#[cfg(feature = "mac")]
+pg_type_implementation![MacAddress];
+
+#[cfg(feature = "uuid")]
+pg_type_implementation![Uuid];
+
+#[cfg(feature = "json")]
+pg_type_implementation![serde_json::Value];

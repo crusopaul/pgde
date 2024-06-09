@@ -32,7 +32,25 @@ jobs:
           - 5432:5432
     steps:
     - uses: actions/checkout@v4
-    - name: Build
-      run: cargo build --verbose --all-features
-    - name: Run tests
-      run: cargo test --tests --verbose --all-features
+    - name: Build base
+      run: cargo build
+    - name: Build features independently
+      run: |
+        cargo build -Fconsume_json
+        cargo build -Fgeo
+        cargo build -Fmac
+        cargo build -Fjson
+        cargo build -Fuuid
+    - name: Build all features
+      run: cargo test --all-features
+    - name: Test base
+      run: cargo test
+    - name: Test features independently
+      run: |
+        cargo build -Fconsume_json
+        cargo build -Fgeo
+        cargo build -Fmac
+        cargo build -Fjson
+        cargo build -Fuuid
+    - name: Test all features
+      run: cargo test --all-features

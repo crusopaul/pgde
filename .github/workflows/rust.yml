@@ -47,10 +47,10 @@ jobs:
       run: cargo test
     - name: Test features independently
       run: |
-        cargo build -Fconsume_json
-        cargo build -Fgeo
-        cargo build -Fmac
-        cargo build -Fjson
-        cargo build -Fuuid
+        cargo test -Fconsume_json
+        cargo test -Fgeo
+        cargo test -Fmac
+        cargo test -Fjson
+        cargo test -Fuuid
     - name: Test all features
       run: cargo test --all-features

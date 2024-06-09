@@ -295,7 +295,10 @@ macro_rules! pg_type_expr_implementation {
     };
 }
 
-pg_type_implementation![bool, i8, i16, i32, u32, i64, f32, f64, String];
+pg_type_implementation![bool, i8, i16, i32, u32, i64, f32, f64, String, Vec<u8>];
+
+#[cfg(feature = "mac")]
+pg_type_implementation![eui48::MacAddress];
 
 #[cfg(feature = "uuid")]
 pg_type_implementation![uuid::Uuid];

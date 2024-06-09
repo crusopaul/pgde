@@ -1,6 +1,6 @@
 [package]
 name = "pgde"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["Paul Caruso <crusopaul@gmail.com>"]
 license = "MIT"
 edition = "2021"
@@ -11,10 +11,12 @@ keywords = ["postgresql"]
 
 [features]
 consume_json = ["serde", "serde_json"]
+mac = ["eui48", "tokio-postgres/with-eui48-1"]
 json = ["serde_json", "tokio-postgres/with-serde_json-1"]
 uuid = ["dep:uuid", "tokio-postgres/with-uuid-1"]
 
 [dependencies]
+eui48 = { version = "1.1.0", optional = true }
 pgde_derive = { version = "0.1.0" }
 serde = { version = "1.0.0", features = ["derive"], optional = true }
 serde_json = { version = "1.0.0", optional = true }

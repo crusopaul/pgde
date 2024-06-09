@@ -68,7 +68,7 @@ match tokio_postgres::connect("host=localhost user=postgres password=password db
 # })
 ```
 
-See [`RowConsumer`] for examples of `from_row` and `from_rows`.
+See the `RowConsumer` trait for examples of `from_row` and `from_rows`.
 
 This crate also provides implementations on a variety of data types, some provided by enabling features.
 

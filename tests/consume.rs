@@ -12,7 +12,6 @@ use geo_types::point;
 #[cfg(feature = "geo")]
 use geo_types::Rect;
 use pgde::RowConsumer;
-#[cfg(feature = "consume_json")]
 use pgde_derive::RowConsumer;
 #[cfg(feature = "consume_json")]
 use serde::Serialize;
@@ -21,7 +20,6 @@ use serde_json::json;
 use std::net::IpAddr;
 use std::net::Ipv4Addr;
 use std::time::SystemTime;
-#[cfg(feature = "consume_json")]
 use tokio_postgres::Row;
 use tokio_postgres::{Client, NoTls};
 #[cfg(feature = "uuid")]

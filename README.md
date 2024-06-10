@@ -8,8 +8,6 @@ This crate provides a variety of derivable implementations that can be used to c
 
 The latter implementations are built from `from_row`.
 
-Most of the complex PostgreSQL types are not supported, namely arrays. Consequently `Vec` types on structs are not currently supported.
-
 ## Features
 A variety of features provide support for additional implementation and types.
 

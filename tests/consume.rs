@@ -1,4 +1,6 @@
 //! Attempts to test a variety of `consume` scenarios for data types mentioned in the provided `FromSql` type implementations from postgres_types.
+#[cfg(feature = "bit")]
+use bit_vec::BitVec;
 #[cfg(feature = "mac")]
 use eui48::MacAddress;
 #[cfg(feature = "geo")]
@@ -10,7 +12,6 @@ use geo_types::point;
 #[cfg(feature = "geo")]
 use geo_types::Rect;
 use pgde::RowConsumer;
-#[cfg(feature = "consume_json")]
 use pgde_derive::RowConsumer;
 #[cfg(feature = "consume_json")]
 use serde::Serialize;
@@ -19,7 +20,6 @@ use serde_json::json;
 use std::net::IpAddr;
 use std::net::Ipv4Addr;
 use std::time::SystemTime;
-#[cfg(feature = "consume_json")]
 use tokio_postgres::Row;
 use tokio_postgres::{Client, NoTls};
 #[cfg(feature = "uuid")]
@@ -1176,6 +1176,89 @@ async fn consume_uuid() -> Result<(), String> {
 }
 
 #[tokio::test]
+#[cfg(feature = "bit")]
+async fn consume_bits() -> Result<(), String> {
+    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
+    assert_ne!(DATABASE_USER, "bad", "No database user provided");
+    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
+    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_bits (
+                    field1 bit(16),
+                    field2 varbit(16)
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                let test_bits = BitVec::from_bytes(&[0b10100000, 0b00010010]);
+
+                match v
+                    .query(
+                        "insert into public.\"consume_bits\" values ( $1, $2 );",
+                        &[&test_bits, &test_bits],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match BitVec::consume(
+                            &v,
+                            "select field1 from public.\"consume_bits\";",
+                            &[],
+                        )
+                        .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value, test_bits,
+                                        "Could not consume bit into BitVec"
+                                    );
+
+                                    match BitVec::consume(
+                                        &v,
+                                        "select field2 from public.\"consume_bits\";",
+                                        &[],
+                                    )
+                                    .await
+                                    {
+                                        Ok(result) => match result.last() {
+                                            Some(result_value) => {
+                                                assert_eq!(
+                                                    *result_value, test_bits,
+                                                    "Could not consume varbit into BitVec"
+                                                );
+
+                                                Ok(())
+                                            }
+                                            None => Err(String::from(
+                                                "Could not consume varbit into BitVec",
+                                            )),
+                                        },
+                                        Err(_) => Err(String::from(
+                                            "Could not consume varbit into BitVec",
+                                        )),
+                                    }
+                                }
+                                None => Err(String::from("Could not consume bit into BitVec")),
+                            },
+                            Err(_) => Err(String::from("Could not consume bit into BitVec")),
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[tokio::test]
 #[cfg(feature = "consume_json")]
 async fn consume_json_impl() -> Result<(), String> {
     assert_ne!(DATABASE_HOST, "bad", "No database host provided");
@@ -1201,6 +1284,83 @@ async fn consume_json_impl() -> Result<(), String> {
                 Ok(())
             }
             Err(_) => Err(String::from("Could not consume_json into struct")),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[tokio::test]
+async fn consume_vecfield() -> Result<(), String> {
+    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
+    assert_ne!(DATABASE_USER, "bad", "No database user provided");
+    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
+    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+
+    #[derive(RowConsumer)]
+    struct Foo {
+        foo: i32,
+        bar: Vec<i32>,
+    }
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_vecfield (
+                    field1 int,
+                    field2 int[]
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                let test_foo = Foo {
+                    foo: 1,
+                    bar: vec![1, 2, 3, 4],
+                };
+
+                match v
+                    .query(
+                        "insert into public.\"consume_vecfield\" values ( $1, $2 );",
+                        &[&test_foo.foo, &test_foo.bar],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match Foo::consume(
+                            &v,
+                            "select field1, field2 from public.\"consume_vecfield\";",
+                            &[],
+                        )
+                        .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        result_value.foo, test_foo.foo,
+                                        "Could not consume int into i32 on struct"
+                                    );
+
+                                    assert_eq!(
+                                        result_value.bar, test_foo.bar,
+                                        "Could not consume int[] into Vec<i32> on struct"
+                                    );
+
+                                    Ok(())
+                                }
+                                None => Err(String::from(
+                                    "Could not consume int[] into Vec<i32> on struct",
+                                )),
+                            },
+                            Err(_) => Err(String::from(
+                                "Could not consume int[] into Vec<i32> on struct",
+                            )),
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
         },
         Err(_) => Err(String::from("Could not connect to database")),
     }

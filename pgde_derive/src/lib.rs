@@ -4,7 +4,7 @@
 extern crate proc_macro;
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, Data, DeriveInput, Fields, Ident};
+use syn::{parse_macro_input, Data, DeriveInput, Fields, Ident, PathArguments, Type};
 
 /// A macro for deriving a `from_row` implementation onto a struct.
 #[proc_macro_derive(RowConsumer)]
@@ -23,16 +23,49 @@ fn parse_field_setters(class_name: &Ident, data: &Data) -> TokenStream {
             Fields::Named(ref fields) => {
                 let field_setters = fields.named.iter().enumerate().map(|(i, f)| {
                     let field_name = &f.ident;
-                    let field_type = &f.ty;
+                    let (field_type, field_type_args) = match &f.ty {
+                        Type::Path(field_ty) => match field_ty.path.segments.last() {
+                            Some(path_segment) => match &path_segment.arguments {
+                                PathArguments::AngleBracketed(previous_type_args) => {
+                                    let mut new_field_type = f.ty.clone();
 
-                    quote! {
-                        #field_name: match row.try_get::<usize, #field_type>(#i) {
-                            Ok(v) => v,
-                            Err(_) => {
-                                errors.push(format!("Conversion error occurred for field \"{}\" on class \"{}\"", stringify!(#field_name), stringify!(#class_name)));
-                                #field_type::default()
+                                    match new_field_type {
+                                        Type::Path(ref mut field_ty) => match field_ty.path.segments.last_mut() {
+                                            Some(v) => {
+                                                v.arguments = PathArguments::None;
+                                                (new_field_type, Some(previous_type_args))
+                                            },
+                                            None => (f.ty.clone(), None)
+                                        },
+                                        _ => (f.ty.clone(), None),
+                                    }
+                                },
+                                _ => (f.ty.clone(), None),
                             },
-                        }
+                            None => (f.ty.clone(), None),
+                        },
+                        _ => (f.ty.clone(), None),
+                    };
+
+                    match field_type_args {
+                        Some(v) => quote! {
+                            #field_name: match row.try_get::<usize, #field_type::#v>(#i) {
+                                Ok(v) => v,
+                                Err(_) => {
+                                    errors.push(format!("Conversion error occurred for field \"{}\" on class \"{}\"", stringify!(#field_name), stringify!(#class_name)));
+                                    #field_type::default()
+                                },
+                            }
+                        },
+                        None => quote! {
+                            #field_name: match row.try_get::<usize, #field_type>(#i) {
+                                Ok(v) => v,
+                                Err(_) => {
+                                    errors.push(format!("Conversion error occurred for field \"{}\" on class \"{}\"", stringify!(#field_name), stringify!(#class_name)));
+                                    #field_type::default()
+                                },
+                            }
+                        },
                     }
                 });
 

@@ -8,8 +8,6 @@
 //!
 //! The latter implementations are built from `from_row`.
 //!
-//! Most of the complex PostgreSQL types are not supported, namely arrays. Consequently `Vec` types on structs are not currently supported.
-//!
 //! ## Features
 //! A variety of features provide support for additional implementation and types.
 //!
@@ -102,6 +100,8 @@
 //! | `POSTGRES_USER` | The user credential to provide. |
 //! | `POSTGRES_PASSWORD` | The password to provide. |
 //! | `POSTGRES_DB` | The name of the database to use for testing. |
+#[cfg(feature = "bit")]
+use bit_vec::BitVec;
 #[cfg(feature = "mac")]
 use eui48::MacAddress;
 #[cfg(feature = "geo")]
@@ -469,6 +469,9 @@ pg_type_expr_implementation![
     IpAddr,
     IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1))
 ];
+
+#[cfg(feature = "bit")]
+pg_type_implementation![BitVec];
 
 #[cfg(feature = "geo")]
 pg_type_implementation![Point<f64>];

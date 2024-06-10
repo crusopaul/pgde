@@ -13,6 +13,7 @@
 //!
 //! | Feature | Description | Extra dependencies | Default |
 //! | ------- | ----------- | ------------------ | ------- |
+//! | `bit` | Implements crate on `bit_vec::BitVec` | bit-vec | No |
 //! | `consume_json` | Implements `consume_json` on classes that derive the `RowConsumer` trait | serde, serde_json | No |
 //! | `geo` | Implements crate on `geo_types::Point<f64>`, `geo_types::Rect<f64>`, and `geo_types::LineString<f64>` | geo-types | No |
 //! | `mac` | Implements crate on `eui48::MacAddress` | eui48 | No |
@@ -84,6 +85,7 @@
 //! | `String` | `default` |
 //! | `SystemTime` | `default` |
 //! | `IpAddr` | `default` |
+//! | `bit_vec::BitVec` | `bit` |
 //! | `geo_types::Point<f64>` | `geo` |
 //! | `geo_types::Rect<f64>` | `geo` |
 //! | `geo_types::LineString<f64>` | `geo` |

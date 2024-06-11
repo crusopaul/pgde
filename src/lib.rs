@@ -67,7 +67,7 @@
 //! # })
 //! ```
 //!
-//! See the `RowConsumer` trait for examples of `from_row` and `from_rows`.
+//! Types of `Vec<T>` and `Option<T>`, where `T` implements `FromSql`, are also supported on structs, or as standalone consuming types, that derive `RowConsumer`. When querying nullable fields, it is best to wrap field types in an `Option<>`. See the `RowConsumer` trait for use examples of `from_row` and `from_rows`.
 //!
 //! This crate also provides implementations on a variety of data types, some provided by enabling features.
 //!
@@ -463,37 +463,94 @@ macro_rules! pg_type_expr_implementation {
     };
 }
 
-pg_type_implementation![bool, i8, i16, i32, u32, i64, f32, f64, String, Vec<u8>];
+pg_type_implementation![
+    bool,
+    i8,
+    i16,
+    i32,
+    u32,
+    i64,
+    f32,
+    f64,
+    String,
+    Vec<u8>,
+    Vec<bool>,
+    Vec<i8>,
+    Vec<i16>,
+    Vec<i32>,
+    Vec<u32>,
+    Vec<i64>,
+    Vec<f32>,
+    Vec<f64>,
+    Vec<String>,
+    Vec<Vec<u8>>,
+    Option<bool>,
+    Option<i8>,
+    Option<i16>,
+    Option<i32>,
+    Option<u32>,
+    Option<i64>,
+    Option<f32>,
+    Option<f64>,
+    Option<String>,
+    Option<Vec<u8>>
+];
 
 pg_type_expr_implementation![
     SystemTime,
     SystemTime::now(),
+    Vec<SystemTime>,
+    vec![SystemTime::now()],
+    Option<SystemTime>,
+    Some(SystemTime::now()),
     IpAddr,
-    IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1))
+    IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)),
+    Vec<IpAddr>,
+    vec![IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1))],
+    Option<IpAddr>,
+    Some(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)))
 ];
 
 #[cfg(feature = "bit")]
-pg_type_implementation![BitVec];
+pg_type_implementation![BitVec, Vec<BitVec>, Option<BitVec>];
 
 #[cfg(feature = "geo")]
-pg_type_implementation![Point<f64>];
+pg_type_implementation![Point<f64>, Vec<Point<f64>>, Option<Point<f64>>];
 
 #[cfg(feature = "geo")]
 pg_type_expr_implementation![
     Rect<f64>,
     Rect::new(coord! { x: 0., y: 0.}, coord! { x: 1., y: 1.},),
+    Vec<Rect<f64>>,
+    vec![Rect::new(coord! { x: 0., y: 0.}, coord! { x: 1., y: 1.},)],
+    Option<Rect<f64>>,
+    Some(Rect::new(coord! { x: 0., y: 0.}, coord! { x: 1., y: 1.},)),
     LineString<f64>,
     line_string![
         (x: 0., y: 0.),
         (x: 1., y: 1.),
-    ]
+    ],
+    Vec<LineString<f64>>,
+    vec![line_string![
+        (x: 0., y: 0.),
+        (x: 1., y: 1.),
+    ]],
+    Option<LineString<f64>>,
+    Some(line_string![
+        (x: 0., y: 0.),
+        (x: 1., y: 1.),
+    ])
 ];
 
 #[cfg(feature = "mac")]
-pg_type_implementation![MacAddress];
+pg_type_implementation![MacAddress, Vec<MacAddress>, Option<MacAddress>];
 
 #[cfg(feature = "uuid")]
-pg_type_implementation![Uuid];
+pg_type_implementation![Uuid, Vec<Uuid>, Option<Uuid>];
 
 #[cfg(feature = "json")]
-pg_type_implementation![serde_json::Value];
+pg_type_implementation![
+    serde_json::Value,
+    Vec<serde_json::Value>,
+    Option<serde_json::Value>
+];

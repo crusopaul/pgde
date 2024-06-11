@@ -1290,77 +1290,61 @@ async fn consume_json_impl() -> Result<(), String> {
 }
 
 #[tokio::test]
-async fn consume_vecfield() -> Result<(), String> {
+async fn consume_option() -> Result<(), String> {
     assert_ne!(DATABASE_HOST, "bad", "No database host provided");
     assert_ne!(DATABASE_USER, "bad", "No database user provided");
     assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
     assert_ne!(DATABASE_NAME, "bad", "No database name provided");
 
     #[derive(RowConsumer)]
-    struct Foo {
-        foo: i32,
-        bar: Vec<i32>,
+    struct OptionConsumer {
+        nullable: Option<i32>,
+        not_nullable: Option<i32>,
     }
 
     match connect_to_database().await {
-        Ok(v) => match v
-            .query(
-                "create table if not exists consume_vecfield (
-                    field1 int,
-                    field2 int[]
-                );",
-                &[],
-            )
-            .await
-        {
-            Ok(_) => {
-                let test_foo = Foo {
-                    foo: 1,
-                    bar: vec![1, 2, 3, 4],
-                };
-
-                match v
-                    .query(
-                        "insert into public.\"consume_vecfield\" values ( $1, $2 );",
-                        &[&test_foo.foo, &test_foo.bar],
-                    )
-                    .await
-                {
-                    Ok(_) => {
-                        match Foo::consume(
-                            &v,
-                            "select field1, field2 from public.\"consume_vecfield\";",
-                            &[],
-                        )
-                        .await
-                        {
-                            Ok(result) => match result.last() {
-                                Some(result_value) => {
-                                    assert_eq!(
-                                        result_value.foo, test_foo.foo,
-                                        "Could not consume int into i32 on struct"
-                                    );
-
-                                    assert_eq!(
-                                        result_value.bar, test_foo.bar,
-                                        "Could not consume int[] into Vec<i32> on struct"
-                                    );
-
-                                    Ok(())
-                                }
-                                None => Err(String::from(
-                                    "Could not consume int[] into Vec<i32> on struct",
-                                )),
-                            },
-                            Err(_) => Err(String::from(
-                                "Could not consume int[] into Vec<i32> on struct",
-                            )),
-                        }
-                    }
-                    Err(v) => Err(v.to_string()),
+        Ok(v) => match OptionConsumer::consume(&v, "select null::int, 1;", &[]).await {
+            Ok(result) => match result.last() {
+                Some(result_value) => {
+                    assert_eq!(
+                        result_value.nullable, None,
+                        "Could not consume null into Option<i32>"
+                    );
+                    assert_eq!(
+                        result_value.not_nullable,
+                        Some(1),
+                        "Could not consume not-null into Option<i32>"
+                    );
+                    Ok(())
                 }
-            }
-            Err(v) => Err(v.to_string()),
+                None => Err(String::from("Could not consume null into Option<i32>")),
+            },
+            Err(_) => Err(String::from("Could not consume null into Option<i32>")),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[tokio::test]
+async fn consume_option_unit() -> Result<(), String> {
+    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
+    assert_ne!(DATABASE_USER, "bad", "No database user provided");
+    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
+    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+
+    match connect_to_database().await {
+        Ok(v) => match Option::<i32>::consume(&v, "select null::int;", &[]).await {
+            Ok(result) => match result.last() {
+                Some(result_value) => {
+                    assert_eq!(
+                        *result_value, None,
+                        "Could not consume null into Option<i32>"
+                    );
+                    Ok(())
+                }
+                None => Err(String::from("Could not consume null into Option<i32>")),
+            },
+            Err(_) => Err(String::from("Could not consume null into Option<i32>")),
         },
         Err(_) => Err(String::from("Could not connect to database")),
     }

@@ -67,7 +67,7 @@ match tokio_postgres::connect("host=localhost user=postgres password=password db
 # })
 ```
 
-See the `RowConsumer` trait for examples of `from_row` and `from_rows`.
+Types of `Vec<T>` and `Option<T>`, where `T` implements `FromSql`, are also supported on structs, or as standalone consuming types, that derive `RowConsumer`. When querying nullable fields, it is best to wrap field types in an `Option<>`. See the `RowConsumer` trait for use examples of `from_row` and `from_rows`.
 
 This crate also provides implementations on a variety of data types, some provided by enabling features.
 

@@ -14,6 +14,7 @@
 //! | Feature | Description | Extra dependencies | Default |
 //! | ------- | ----------- | ------------------ | ------- |
 //! | `bit` | Implements crate on `bit_vec::BitVec` | bit-vec | No |
+//! | `chrono` | Implements crate on types supplied from chrono | chrono | No |
 //! | `consume_json` | Implements `consume_json` on classes that derive the `RowConsumer` trait | serde, serde_json | No |
 //! | `geo` | Implements crate on `geo_types::Point<f64>`, `geo_types::Rect<f64>`, and `geo_types::LineString<f64>` | geo-types | No |
 //! | `mac` | Implements crate on `eui48::MacAddress` | eui48 | No |
@@ -86,6 +87,12 @@
 //! | `SystemTime` | `default` |
 //! | `IpAddr` | `default` |
 //! | `bit_vec::BitVec` | `bit` |
+//! | `chrono::NaiveDateTime` | `chrono` |
+//! | `chrono::DateTime<Utc>` | `chrono` |
+//! | `chrono::DateTime<Local>` | `chrono` |
+//! | `chrono::DateTime<FixedOffset>` | `chrono` |
+//! | `chrono::NaiveDate` | `chrono` |
+//! | `chrono::NaiveTime` | `chrono` |
 //! | `geo_types::Point<f64>` | `geo` |
 //! | `geo_types::Rect<f64>` | `geo` |
 //! | `geo_types::LineString<f64>` | `geo` |
@@ -104,6 +111,8 @@
 //! | `POSTGRES_DB` | The name of the database to use for testing. |
 #[cfg(feature = "bit")]
 use bit_vec::BitVec;
+#[cfg(feature = "chrono")]
+use chrono::prelude::*;
 #[cfg(feature = "mac")]
 use eui48::MacAddress;
 #[cfg(feature = "geo")]
@@ -513,6 +522,28 @@ pg_type_expr_implementation![
 
 #[cfg(feature = "bit")]
 pg_type_implementation![BitVec, Vec<BitVec>, Option<BitVec>];
+
+#[cfg(feature = "chrono")]
+pg_type_implementation![
+    NaiveDateTime,
+    DateTime<Utc>,
+    DateTime<Local>,
+    DateTime<FixedOffset>,
+    NaiveDate,
+    NaiveTime,
+    Vec<NaiveDateTime>,
+    Vec<DateTime<Utc>>,
+    Vec<DateTime<Local>>,
+    Vec<DateTime<FixedOffset>>,
+    Vec<NaiveDate>,
+    Vec<NaiveTime>,
+    Option<NaiveDateTime>,
+    Option<DateTime<Utc>>,
+    Option<DateTime<Local>>,
+    Option<DateTime<FixedOffset>>,
+    Option<NaiveDate>,
+    Option<NaiveTime>
+];
 
 #[cfg(feature = "geo")]
 pg_type_implementation![Point<f64>, Vec<Point<f64>>, Option<Point<f64>>];

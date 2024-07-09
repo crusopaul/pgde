@@ -1,6 +1,8 @@
 //! Attempts to test a variety of `consume` scenarios for data types mentioned in the provided `FromSql` type implementations from postgres_types.
 #[cfg(feature = "bit")]
 use bit_vec::BitVec;
+#[cfg(feature = "chrono")]
+use chrono::prelude::*;
 #[cfg(feature = "mac")]
 use eui48::MacAddress;
 #[cfg(feature = "geo")]
@@ -1345,6 +1347,368 @@ async fn consume_option_unit() -> Result<(), String> {
                 None => Err(String::from("Could not consume null into Option<i32>")),
             },
             Err(_) => Err(String::from("Could not consume null into Option<i32>")),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[cfg(feature = "chrono")]
+#[tokio::test]
+async fn consume_chrono_naivedatetime() -> Result<(), String> {
+    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
+    assert_ne!(DATABASE_USER, "bad", "No database user provided");
+    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
+    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_chrono_naivedatetime (
+                    field1 timestamp
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                match v
+                    .query(
+                        "insert into public.\"consume_chrono_naivedatetime\" values ( $1 );",
+                        &[&NaiveDateTime::default()],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match NaiveDateTime::consume(
+                            &v,
+                            "select field1 from public.\"consume_chrono_naivedatetime\";",
+                            &[],
+                        )
+                        .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value,
+                                        NaiveDateTime::default(),
+                                        "Could not consume timestamp into NaiveDateTime"
+                                    );
+                                    Ok(())
+                                }
+                                None => Err(String::from(
+                                    "Could not consume timestamp into NaiveDateTime",
+                                )),
+                            },
+                            Err(_) => Err(String::from(
+                                "Could not consume timestamp into NaiveDateTime",
+                            )),
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[cfg(feature = "chrono")]
+#[tokio::test]
+async fn consume_chrono_datetime_utc() -> Result<(), String> {
+    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
+    assert_ne!(DATABASE_USER, "bad", "No database user provided");
+    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
+    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_chrono_datetime_utc (
+                    field1 timestamptz
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                match v
+                    .query(
+                        "insert into public.\"consume_chrono_datetime_utc\" values ( $1 );",
+                        &[&DateTime::<Utc>::default()],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match DateTime::<Utc>::consume(
+                            &v,
+                            "select field1 from public.\"consume_chrono_datetime_utc\";",
+                            &[],
+                        )
+                        .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value,
+                                        DateTime::<Utc>::default(),
+                                        "Could not consume timestamptz into DateTime<Utc>"
+                                    );
+                                    Ok(())
+                                }
+                                None => Err(String::from(
+                                    "Could not consume timestamptz into DateTime<Utc>",
+                                )),
+                            },
+                            Err(_) => Err(String::from(
+                                "Could not consume timestamptz into DateTime<Utc>",
+                            )),
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[cfg(feature = "chrono")]
+#[tokio::test]
+async fn consume_chrono_datetime_local() -> Result<(), String> {
+    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
+    assert_ne!(DATABASE_USER, "bad", "No database user provided");
+    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
+    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_chrono_datetime_local (
+                    field1 timestamptz
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                match v
+                    .query(
+                        "insert into public.\"consume_chrono_datetime_local\" values ( $1 );",
+                        &[&DateTime::<Local>::default()],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match DateTime::<Local>::consume(
+                            &v,
+                            "select field1 from public.\"consume_chrono_datetime_local\";",
+                            &[],
+                        )
+                        .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value,
+                                        DateTime::<Local>::default(),
+                                        "Could not consume timestamptz into DateTime<Local>"
+                                    );
+                                    Ok(())
+                                }
+                                None => Err(String::from(
+                                    "Could not consume timestamptz into DateTime<Local>",
+                                )),
+                            },
+                            Err(_) => Err(String::from(
+                                "Could not consume timestamptz into DateTime<Local>",
+                            )),
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[cfg(feature = "chrono")]
+#[tokio::test]
+async fn consume_chrono_datetime_fixedoffset() -> Result<(), String> {
+    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
+    assert_ne!(DATABASE_USER, "bad", "No database user provided");
+    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
+    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_chrono_datetime_fixedoffset (
+                    field1 timestamptz
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                let test_datetime = FixedOffset::east_opt(5)
+                    .unwrap()
+                    .with_ymd_and_hms(2016, 11, 08, 0, 0, 0)
+                    .unwrap();
+
+                match v
+                    .query(
+                        "insert into public.\"consume_chrono_datetime_fixedoffset\" values ( $1 );",
+                        &[&test_datetime],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match DateTime::<FixedOffset>::consume(
+                            &v,
+                            "select field1 from public.\"consume_chrono_datetime_fixedoffset\";",
+                            &[],
+                        )
+                        .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value, test_datetime,
+                                        "Could not consume timestamptz into DateTime<FixedOffset>"
+                                    );
+                                    Ok(())
+                                }
+                                None => Err(String::from(
+                                    "Could not consume timestamptz into DateTime<FixedOffset>",
+                                )),
+                            },
+                            Err(_) => Err(String::from(
+                                "Could not consume timestamptz into DateTime<FixedOffset>",
+                            )),
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[cfg(feature = "chrono")]
+#[tokio::test]
+async fn consume_chrono_naivedate() -> Result<(), String> {
+    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
+    assert_ne!(DATABASE_USER, "bad", "No database user provided");
+    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
+    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_chrono_naivedate (
+                    field1 date
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                match v
+                    .query(
+                        "insert into public.\"consume_chrono_naivedate\" values ( $1 );",
+                        &[&NaiveDate::default()],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match NaiveDate::consume(
+                            &v,
+                            "select field1 from public.\"consume_chrono_naivedate\";",
+                            &[],
+                        )
+                        .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value,
+                                        NaiveDate::default(),
+                                        "Could not consume date into NaiveDate"
+                                    );
+                                    Ok(())
+                                }
+                                None => Err(String::from("Could not consume date into NaiveDate")),
+                            },
+                            Err(_) => Err(String::from("Could not consume date into NaiveDate")),
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[cfg(feature = "chrono")]
+#[tokio::test]
+async fn consume_chrono_naivetime() -> Result<(), String> {
+    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
+    assert_ne!(DATABASE_USER, "bad", "No database user provided");
+    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
+    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_chrono_naivetime (
+                    field1 time
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                match v
+                    .query(
+                        "insert into public.\"consume_chrono_naivetime\" values ( $1 );",
+                        &[&NaiveTime::default()],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match NaiveTime::consume(
+                            &v,
+                            "select field1 from public.\"consume_chrono_naivetime\";",
+                            &[],
+                        )
+                        .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value,
+                                        NaiveTime::default(),
+                                        "Could not consume time into NaiveTime"
+                                    );
+                                    Ok(())
+                                }
+                                None => Err(String::from("Could not consume time into NaiveTime")),
+                            },
+                            Err(_) => Err(String::from("Could not consume time into NaiveTime")),
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
         },
         Err(_) => Err(String::from("Could not connect to database")),
     }

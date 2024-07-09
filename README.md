@@ -14,6 +14,7 @@ A variety of features provide support for additional implementation and types.
 | Feature | Description | Extra dependencies | Default |
 | ------- | ----------- | ------------------ | ------- |
 | `bit` | Implements crate on `bit_vec::BitVec` | bit-vec | No |
+| `chrono` | Implements crate on types supplied from chrono | chrono | No |
 | `consume_json` | Implements `consume_json` on classes that derive the `RowConsumer` trait | serde, serde_json | No |
 | `geo` | Implements crate on `geo_types::Point<f64>`, `geo_types::Rect<f64>`, and `geo_types::LineString<f64>` | geo-types | No |
 | `mac` | Implements crate on `eui48::MacAddress` | eui48 | No |
@@ -86,6 +87,12 @@ This crate also provides implementations on a variety of data types, some provid
 | `SystemTime` | `default` |
 | `IpAddr` | `default` |
 | `bit_vec::BitVec` | `bit` |
+| `chrono::NaiveDateTime` | `chrono` |
+| `chrono::DateTime<Utc>` | `chrono` |
+| `chrono::DateTime<Local>` | `chrono` |
+| `chrono::DateTime<FixedOffset>` | `chrono` |
+| `chrono::NaiveDate` | `chrono` |
+| `chrono::NaiveTime` | `chrono` |
 | `geo_types::Point<f64>` | `geo` |
 | `geo_types::Rect<f64>` | `geo` |
 | `geo_types::LineString<f64>` | `geo` |

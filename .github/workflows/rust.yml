@@ -36,6 +36,8 @@ jobs:
       run: cargo build
     - name: Build features independently
       run: |
+        cargo build -Fbit
+        cargo build -Fchrono
         cargo build -Fconsume_json
         cargo build -Fgeo
         cargo build -Fmac
@@ -47,6 +49,8 @@ jobs:
       run: cargo test --tests
     - name: Test features independently
       run: |
+        cargo test -Fbit
+        cargo test -Fchrono
         cargo test -Fconsume_json
         cargo test --tests -Fgeo
         cargo test --tests -Fmac

@@ -14,11 +14,12 @@ A variety of features provide support for additional implementation and types.
 | Feature | Description | Extra dependencies | Default |
 | ------- | ----------- | ------------------ | ------- |
 | `bit` | Implements crate on `bit_vec::BitVec` | bit-vec | No |
-| `chrono` | Implements crate on types supplied from chrono | chrono | No |
+| `chrono` | Implements crate on types supplied by chrono | chrono | No |
 | `consume_json` | Implements `consume_json` on classes that derive the `RowConsumer` trait | serde, serde_json | No |
 | `geo` | Implements crate on `geo_types::Point<f64>`, `geo_types::Rect<f64>`, and `geo_types::LineString<f64>` | geo-types | No |
 | `mac` | Implements crate on `eui48::MacAddress` | eui48 | No |
 | `json` | Implements crate on `serde_json::Value` | serde_json | No |
+| `time` | Implements crate on types supplied by time | time | No |
 | `uuid` | Implements crate on `uuid::Uuid` | uuid | No |
 
 ## Examples
@@ -98,6 +99,10 @@ This crate also provides implementations on a variety of data types, some provid
 | `geo_types::LineString<f64>` | `geo` |
 | `eui48::MacAddress` | `mac` |
 | `serde_json::Value` | `json` |
+| `time::PrimitiveDateTime` | `time` |
+| `time::OffsetDateTime` | `time` |
+| `time::Date` | `time` |
+| `time::Time` | `time` |
 | `uuid::Uuid` | `uuid` |
 
 ## Testing

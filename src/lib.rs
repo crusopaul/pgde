@@ -14,11 +14,12 @@
 //! | Feature | Description | Extra dependencies | Default |
 //! | ------- | ----------- | ------------------ | ------- |
 //! | `bit` | Implements crate on `bit_vec::BitVec` | bit-vec | No |
-//! | `chrono` | Implements crate on types supplied from chrono | chrono | No |
+//! | `chrono` | Implements crate on types supplied by chrono | chrono | No |
 //! | `consume_json` | Implements `consume_json` on classes that derive the `RowConsumer` trait | serde, serde_json | No |
 //! | `geo` | Implements crate on `geo_types::Point<f64>`, `geo_types::Rect<f64>`, and `geo_types::LineString<f64>` | geo-types | No |
 //! | `mac` | Implements crate on `eui48::MacAddress` | eui48 | No |
 //! | `json` | Implements crate on `serde_json::Value` | serde_json | No |
+//! | `time` | Implements crate on types supplied by time | time | No |
 //! | `uuid` | Implements crate on `uuid::Uuid` | uuid | No |
 //!
 //! ## Examples
@@ -98,6 +99,10 @@
 //! | `geo_types::LineString<f64>` | `geo` |
 //! | `eui48::MacAddress` | `mac` |
 //! | `serde_json::Value` | `json` |
+//! | `time::PrimitiveDateTime` | `time` |
+//! | `time::OffsetDateTime` | `time` |
+//! | `time::Date` | `time` |
+//! | `time::Time` | `time` |
 //! | `uuid::Uuid` | `uuid` |
 //!
 //! ## Testing
@@ -131,6 +136,8 @@ use std::future::Future;
 use std::net::IpAddr;
 use std::net::Ipv4Addr;
 use std::time::SystemTime;
+#[cfg(feature = "time")]
+use time::{Date, OffsetDateTime, PrimitiveDateTime, Time};
 use tokio_postgres::row::Row;
 use tokio_postgres::types::ToSql;
 use tokio_postgres::Client;
@@ -575,6 +582,34 @@ pg_type_expr_implementation![
 
 #[cfg(feature = "mac")]
 pg_type_implementation![MacAddress, Vec<MacAddress>, Option<MacAddress>];
+
+#[cfg(feature = "time")]
+pg_type_expr_implementation![
+    PrimitiveDateTime,
+    PrimitiveDateTime::MIN,
+    OffsetDateTime,
+    OffsetDateTime::UNIX_EPOCH,
+    Date,
+    Date::MIN,
+    Time,
+    Time::MIDNIGHT,
+    Vec<PrimitiveDateTime>,
+    vec![PrimitiveDateTime::MIN],
+    Vec<OffsetDateTime>,
+    vec![OffsetDateTime::UNIX_EPOCH],
+    Vec<Date>,
+    vec![Date::MIN],
+    Vec<Time>,
+    vec![Time::MIDNIGHT],
+    Option<PrimitiveDateTime>,
+    Some(PrimitiveDateTime::MIN),
+    Option<OffsetDateTime>,
+    Some(OffsetDateTime::UNIX_EPOCH),
+    Option<Date>,
+    Some(Date::MIN),
+    Option<Time>,
+    Some(Time::MIDNIGHT)
+];
 
 #[cfg(feature = "uuid")]
 pg_type_implementation![Uuid, Vec<Uuid>, Option<Uuid>];

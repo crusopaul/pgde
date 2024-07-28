@@ -22,10 +22,22 @@ use serde_json::json;
 use std::net::IpAddr;
 use std::net::Ipv4Addr;
 use std::time::SystemTime;
+#[cfg(feature = "time")]
+use time::{macros::*, Date, OffsetDateTime, PrimitiveDateTime, Time};
 use tokio_postgres::Row;
 use tokio_postgres::{Client, NoTls};
 #[cfg(feature = "uuid")]
 use uuid::Uuid;
+
+#[macro_export]
+macro_rules! db_env_assertion {
+    () => {{
+        assert_ne!(DATABASE_HOST, "bad", "No database host provided");
+        assert_ne!(DATABASE_USER, "bad", "No database user provided");
+        assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
+        assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    }};
+}
 
 async fn connect_to_database() -> Result<Client, ()> {
     let conn_string = format!(
@@ -72,10 +84,7 @@ const DATABASE_NAME: &str = match option_env!("POSTGRES_DB") {
 
 #[tokio::test]
 async fn query_database() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match i32::consume(&v, "select 1", &[]).await {
@@ -94,10 +103,7 @@ async fn query_database() -> Result<(), String> {
 
 #[tokio::test]
 async fn manage_tables() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -118,10 +124,7 @@ async fn manage_tables() -> Result<(), String> {
 
 #[tokio::test]
 async fn consume_boolean() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -181,10 +184,7 @@ async fn consume_boolean() -> Result<(), String> {
 
 #[tokio::test]
 async fn consume_char() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -226,10 +226,7 @@ async fn consume_char() -> Result<(), String> {
 
 #[tokio::test]
 async fn consume_i16() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -296,10 +293,7 @@ async fn consume_i16() -> Result<(), String> {
 
 #[tokio::test]
 async fn consume_i32() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -366,10 +360,7 @@ async fn consume_i32() -> Result<(), String> {
 
 #[tokio::test]
 async fn consume_u32() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -408,10 +399,7 @@ async fn consume_u32() -> Result<(), String> {
 
 #[tokio::test]
 async fn consume_i64() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -481,10 +469,7 @@ async fn consume_i64() -> Result<(), String> {
 
 #[tokio::test]
 async fn consume_f32() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -523,10 +508,7 @@ async fn consume_f32() -> Result<(), String> {
 
 #[tokio::test]
 async fn consume_f64() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -565,10 +547,7 @@ async fn consume_f64() -> Result<(), String> {
 
 #[tokio::test]
 async fn consume_string() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -615,10 +594,7 @@ async fn consume_string() -> Result<(), String> {
 
 #[tokio::test]
 async fn consume_vec_u8() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -672,10 +648,7 @@ async fn consume_vec_u8() -> Result<(), String> {
 
 #[tokio::test]
 async fn consume_system_time() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -732,10 +705,7 @@ async fn consume_system_time() -> Result<(), String> {
 
 #[tokio::test]
 async fn consume_ip() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -786,10 +756,7 @@ async fn consume_ip() -> Result<(), String> {
 #[tokio::test]
 #[cfg(feature = "mac")]
 async fn consume_macaddress() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -849,10 +816,7 @@ async fn consume_macaddress() -> Result<(), String> {
 #[tokio::test]
 #[cfg(feature = "geo")]
 async fn consume_point() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -910,10 +874,7 @@ async fn consume_point() -> Result<(), String> {
 #[tokio::test]
 #[cfg(feature = "geo")]
 async fn consume_rect() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -969,10 +930,7 @@ async fn consume_rect() -> Result<(), String> {
 #[tokio::test]
 #[cfg(feature = "geo")]
 async fn consume_linestring() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -1035,10 +993,7 @@ async fn consume_linestring() -> Result<(), String> {
 #[tokio::test]
 #[cfg(feature = "json")]
 async fn consume_json() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -1125,10 +1080,7 @@ async fn consume_json() -> Result<(), String> {
 #[tokio::test]
 #[cfg(feature = "uuid")]
 async fn consume_uuid() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -1180,10 +1132,7 @@ async fn consume_uuid() -> Result<(), String> {
 #[tokio::test]
 #[cfg(feature = "bit")]
 async fn consume_bits() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -1263,10 +1212,7 @@ async fn consume_bits() -> Result<(), String> {
 #[tokio::test]
 #[cfg(feature = "consume_json")]
 async fn consume_json_impl() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     #[derive(Serialize, RowConsumer)]
     struct Foo {
@@ -1293,10 +1239,7 @@ async fn consume_json_impl() -> Result<(), String> {
 
 #[tokio::test]
 async fn consume_option() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     #[derive(RowConsumer)]
     struct OptionConsumer {
@@ -1329,10 +1272,7 @@ async fn consume_option() -> Result<(), String> {
 
 #[tokio::test]
 async fn consume_option_unit() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match Option::<i32>::consume(&v, "select null::int;", &[]).await {
@@ -1355,10 +1295,7 @@ async fn consume_option_unit() -> Result<(), String> {
 #[cfg(feature = "chrono")]
 #[tokio::test]
 async fn consume_chrono_naivedatetime() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -1416,10 +1353,7 @@ async fn consume_chrono_naivedatetime() -> Result<(), String> {
 #[cfg(feature = "chrono")]
 #[tokio::test]
 async fn consume_chrono_datetime_utc() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -1477,10 +1411,7 @@ async fn consume_chrono_datetime_utc() -> Result<(), String> {
 #[cfg(feature = "chrono")]
 #[tokio::test]
 async fn consume_chrono_datetime_local() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -1538,10 +1469,7 @@ async fn consume_chrono_datetime_local() -> Result<(), String> {
 #[cfg(feature = "chrono")]
 #[tokio::test]
 async fn consume_chrono_datetime_fixedoffset() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -1603,10 +1531,7 @@ async fn consume_chrono_datetime_fixedoffset() -> Result<(), String> {
 #[cfg(feature = "chrono")]
 #[tokio::test]
 async fn consume_chrono_naivedate() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -1660,10 +1585,7 @@ async fn consume_chrono_naivedate() -> Result<(), String> {
 #[cfg(feature = "chrono")]
 #[tokio::test]
 async fn consume_chrono_naivetime() -> Result<(), String> {
-    assert_ne!(DATABASE_HOST, "bad", "No database host provided");
-    assert_ne!(DATABASE_USER, "bad", "No database user provided");
-    assert_ne!(DATABASE_PASSWORD, "bad", "No database password provided");
-    assert_ne!(DATABASE_NAME, "bad", "No database name provided");
+    db_env_assertion!();
 
     match connect_to_database().await {
         Ok(v) => match v
@@ -1703,6 +1625,234 @@ async fn consume_chrono_naivetime() -> Result<(), String> {
                                 None => Err(String::from("Could not consume time into NaiveTime")),
                             },
                             Err(_) => Err(String::from("Could not consume time into NaiveTime")),
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[cfg(feature = "time")]
+#[tokio::test]
+async fn consume_time_primitivedatetime() -> Result<(), String> {
+    db_env_assertion!();
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_time_primitivedatetime (
+                    field1 timestamp
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                let test_datetime = datetime!(2020-01-01 0:00);
+
+                match v
+                    .query(
+                        "insert into public.\"consume_time_primitivedatetime\" values ( $1 );",
+                        &[&test_datetime],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match PrimitiveDateTime::consume(
+                            &v,
+                            "select field1 from public.\"consume_time_primitivedatetime\";",
+                            &[],
+                        )
+                        .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value, test_datetime,
+                                        "Could not consume timestamp into PrimitiveDateTime"
+                                    );
+                                    Ok(())
+                                }
+                                None => Err(String::from(
+                                    "Could not consume timestamp into PrimitiveDateTime",
+                                )),
+                            },
+                            Err(_) => Err(String::from(
+                                "Could not consume timestamp into PrimitiveDateTime",
+                            )),
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[cfg(feature = "time")]
+#[tokio::test]
+async fn consume_time_offsetdatetime() -> Result<(), String> {
+    db_env_assertion!();
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_time_offsetdatetime (
+                    field1 timestamptz
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                let test_datetime = datetime!(2020-01-01 0:00 UTC);
+
+                match v
+                    .query(
+                        "insert into public.\"consume_time_offsetdatetime\" values ( $1 );",
+                        &[&test_datetime],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match OffsetDateTime::consume(
+                            &v,
+                            "select field1 from public.\"consume_time_offsetdatetime\";",
+                            &[],
+                        )
+                        .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value, test_datetime,
+                                        "Could not consume timestamptz into OffsetDateTime"
+                                    );
+                                    Ok(())
+                                }
+                                None => Err(String::from(
+                                    "Could not consume timestamptz into OffsetDateTime",
+                                )),
+                            },
+                            Err(_) => Err(String::from(
+                                "Could not consume timestamptz into OffsetDateTime",
+                            )),
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[cfg(feature = "time")]
+#[tokio::test]
+async fn consume_time_date() -> Result<(), String> {
+    db_env_assertion!();
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_time_date (
+                    field1 date
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                let test_date = date!(2020 - 01 - 01);
+
+                match v
+                    .query(
+                        "insert into public.\"consume_time_date\" values ( $1 );",
+                        &[&test_date],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match Date::consume(
+                            &v,
+                            "select field1 from public.\"consume_time_date\";",
+                            &[],
+                        )
+                        .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value, test_date,
+                                        "Could not consume date into Date"
+                                    );
+                                    Ok(())
+                                }
+                                None => Err(String::from("Could not consume date into Date")),
+                            },
+                            Err(_) => Err(String::from("Could not consume date into Date")),
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[cfg(feature = "time")]
+#[tokio::test]
+async fn consume_time_time() -> Result<(), String> {
+    db_env_assertion!();
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_time_time (
+                    field1 time
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                let test_time = time!(5:00);
+
+                match v
+                    .query(
+                        "insert into public.\"consume_time_time\" values ( $1 );",
+                        &[&test_time],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match Time::consume(
+                            &v,
+                            "select field1 from public.\"consume_time_time\";",
+                            &[],
+                        )
+                        .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value, test_time,
+                                        "Could not consume time into Time"
+                                    );
+                                    Ok(())
+                                }
+                                None => Err(String::from("Could not consume time into Time")),
+                            },
+                            Err(_) => Err(String::from("Could not consume time into Time")),
                         }
                     }
                     Err(v) => Err(v.to_string()),

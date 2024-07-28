@@ -42,6 +42,7 @@ jobs:
         cargo build -Fgeo
         cargo build -Fmac
         cargo build -Fjson
+        cargo build -Ftime
         cargo build -Fuuid
     - name: Build all features
       run: cargo build --all-features
@@ -52,9 +53,10 @@ jobs:
         cargo test -Fbit
         cargo test -Fchrono
         cargo test -Fconsume_json
-        cargo test --tests -Fgeo
-        cargo test --tests -Fmac
-        cargo test --tests -Fjson
-        cargo test --tests -Fuuid
+        cargo test -Fgeo
+        cargo test -Fmac
+        cargo test -Fjson
+        cargo test -Ftime
+        cargo test -Fuuid
     - name: Test all features
       run: cargo test --all-features

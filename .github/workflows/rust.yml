@@ -47,7 +47,10 @@ jobs:
         cargo build -Ftime_0_3
         cargo build -Fuuid_1
     - name: Build all features
-      run: cargo build --all-features
+      run: |
+        cargo build -Fbit_0_6 -Fchrono_0_4 -Fconsume_json_1 -Fgeo_0_7 -Fmac_1 -Fjson_1 -Ftime_0_3 -Fuuid_1
+        cargo build -Fbit_0_7 -Fchrono_0_4 -Fconsume_json_1 -Fgeo_0_7 -Fmac_1 -Fjson_1 -Ftime_0_3 -Fuuid_1
+        cargo build -Fbit_0_8 -Fchrono_0_4 -Fconsume_json_1 -Fgeo_0_7 -Fmac_1 -Fjson_1 -Ftime_0_3 -Fuuid_1
     - name: Test base
       run: cargo test --tests
     - name: Test features independently

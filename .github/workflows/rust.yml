@@ -36,27 +36,37 @@ jobs:
       run: cargo build
     - name: Build features independently
       run: |
-        cargo build -Fbit
-        cargo build -Fchrono
-        cargo build -Fconsume_json
-        cargo build -Fgeo
-        cargo build -Fmac
-        cargo build -Fjson
-        cargo build -Ftime
-        cargo build -Fuuid
+        cargo build -Fbit_0_6
+        cargo build -Fbit_0_7
+        cargo build -Fbit_0_8
+        cargo build -Fchrono_0_4
+        cargo build -Fconsume_json_1
+        cargo build -Fgeo_0_7
+        cargo build -Fmac_1
+        cargo build -Fjson_1
+        cargo build -Ftime_0_3
+        cargo build -Fuuid_1
     - name: Build all features
-      run: cargo build --all-features
+      run: |
+        cargo build -Fbit_0_6 -Fchrono_0_4 -Fconsume_json_1 -Fgeo_0_7 -Fmac_1 -Fjson_1 -Ftime_0_3 -Fuuid_1
+        cargo build -Fbit_0_7 -Fchrono_0_4 -Fconsume_json_1 -Fgeo_0_7 -Fmac_1 -Fjson_1 -Ftime_0_3 -Fuuid_1
+        cargo build -Fbit_0_8 -Fchrono_0_4 -Fconsume_json_1 -Fgeo_0_7 -Fmac_1 -Fjson_1 -Ftime_0_3 -Fuuid_1
     - name: Test base
       run: cargo test --tests
     - name: Test features independently
       run: |
-        cargo test -Fbit
-        cargo test -Fchrono
-        cargo test -Fconsume_json
-        cargo test -Fgeo
-        cargo test -Fmac
-        cargo test -Fjson
-        cargo test -Ftime
-        cargo test -Fuuid
+        cargo test -Fbit_0_6
+        cargo test -Fbit_0_7
+        cargo test -Fbit_0_8
+        cargo test -Fchrono_0_4
+        cargo test -Fconsume_json_1
+        cargo test -Fgeo_0_7
+        cargo test -Fmac_1
+        cargo test -Fjson_1
+        cargo test -Ftime_0_3
+        cargo test -Fuuid_1
     - name: Test all features
-      run: cargo test --all-features
+      run: |
+        cargo test -Fbit_0_6 -Fchrono_0_4 -Fconsume_json_1 -Fgeo_0_7 -Fmac_1 -Fjson_1 -Ftime_0_3 -Fuuid_1
+        cargo test -Fbit_0_7 -Fchrono_0_4 -Fconsume_json_1 -Fgeo_0_7 -Fmac_1 -Fjson_1 -Ftime_0_3 -Fuuid_1
+        cargo test -Fbit_0_8 -Fchrono_0_4 -Fconsume_json_1 -Fgeo_0_7 -Fmac_1 -Fjson_1 -Ftime_0_3 -Fuuid_1

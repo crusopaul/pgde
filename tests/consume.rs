@@ -1,33 +1,37 @@
 //! Attempts to test a variety of `consume` scenarios for data types mentioned in the provided `FromSql` type implementations from postgres_types.
-#[cfg(feature = "bit")]
-use bit_vec::BitVec;
-#[cfg(feature = "chrono")]
-use chrono::prelude::*;
-#[cfg(feature = "mac")]
-use eui48::MacAddress;
-#[cfg(feature = "geo")]
-use geo_types::coord;
-#[cfg(feature = "geo")]
-use geo_types::line_string;
-#[cfg(feature = "geo")]
-use geo_types::point;
-#[cfg(feature = "geo")]
-use geo_types::Rect;
+#[cfg(feature = "bit_0_6")]
+use bit_vec_0_6::BitVec;
+#[cfg(feature = "bit_0_7")]
+use bit_vec_0_7::BitVec;
+#[cfg(feature = "bit_0_8")]
+use bit_vec_0_8::BitVec;
+#[cfg(feature = "chrono_0_4")]
+use chrono_0_4::prelude::*;
+#[cfg(feature = "mac_1")]
+use eui48_1::MacAddress;
+#[cfg(feature = "geo_0_7")]
+use geo_types_0_7::coord;
+#[cfg(feature = "geo_0_7")]
+use geo_types_0_7::line_string;
+#[cfg(feature = "geo_0_7")]
+use geo_types_0_7::point;
+#[cfg(feature = "geo_0_7")]
+use geo_types_0_7::Rect;
 use pgde::RowConsumer;
 use pgde_derive::RowConsumer;
-#[cfg(feature = "consume_json")]
-use serde::Serialize;
-#[cfg(feature = "json")]
-use serde_json::json;
+#[cfg(feature = "consume_json_1")]
+use serde_1::{self, Serialize};
+#[cfg(feature = "json_1")]
+use serde_json_1::json;
 use std::net::IpAddr;
 use std::net::Ipv4Addr;
 use std::time::SystemTime;
-#[cfg(feature = "time")]
-use time::{macros::*, Date, OffsetDateTime, PrimitiveDateTime, Time};
+#[cfg(feature = "time_0_3")]
+use time_0_3::{Date, Month, OffsetDateTime, PrimitiveDateTime, Time};
 use tokio_postgres::Row;
 use tokio_postgres::{Client, NoTls};
-#[cfg(feature = "uuid")]
-use uuid::Uuid;
+#[cfg(feature = "uuid_1")]
+use uuid_1::Uuid;
 
 #[macro_export]
 macro_rules! db_env_assertion {
@@ -754,7 +758,7 @@ async fn consume_ip() -> Result<(), String> {
 }
 
 #[tokio::test]
-#[cfg(feature = "mac")]
+#[cfg(feature = "mac_1")]
 async fn consume_macaddress() -> Result<(), String> {
     db_env_assertion!();
 
@@ -814,7 +818,7 @@ async fn consume_macaddress() -> Result<(), String> {
 }
 
 #[tokio::test]
-#[cfg(feature = "geo")]
+#[cfg(feature = "geo_0_7")]
 async fn consume_point() -> Result<(), String> {
     db_env_assertion!();
 
@@ -839,7 +843,7 @@ async fn consume_point() -> Result<(), String> {
                     .await
                 {
                     Ok(_) => {
-                        match geo_types::Point::<f64>::consume(
+                        match geo_types_0_7::Point::<f64>::consume(
                             &v,
                             "select field1 from public.\"consume_point\";",
                             &[],
@@ -872,7 +876,7 @@ async fn consume_point() -> Result<(), String> {
 }
 
 #[tokio::test]
-#[cfg(feature = "geo")]
+#[cfg(feature = "geo_0_7")]
 async fn consume_rect() -> Result<(), String> {
     db_env_assertion!();
 
@@ -897,7 +901,7 @@ async fn consume_rect() -> Result<(), String> {
                     .await
                 {
                     Ok(_) => {
-                        match geo_types::Rect::<f64>::consume(
+                        match geo_types_0_7::Rect::<f64>::consume(
                             &v,
                             "select field1 from public.\"consume_rect\";",
                             &[],
@@ -928,7 +932,7 @@ async fn consume_rect() -> Result<(), String> {
 }
 
 #[tokio::test]
-#[cfg(feature = "geo")]
+#[cfg(feature = "geo_0_7")]
 async fn consume_linestring() -> Result<(), String> {
     db_env_assertion!();
 
@@ -956,7 +960,7 @@ async fn consume_linestring() -> Result<(), String> {
                     .await
                 {
                     Ok(_) => {
-                        match geo_types::LineString::<f64>::consume(
+                        match geo_types_0_7::LineString::<f64>::consume(
                             &v,
                             "select field1 from public.\"consume_linestring\";",
                             &[],
@@ -991,7 +995,7 @@ async fn consume_linestring() -> Result<(), String> {
 }
 
 #[tokio::test]
-#[cfg(feature = "json")]
+#[cfg(feature = "json_1")]
 async fn consume_json() -> Result<(), String> {
     db_env_assertion!();
 
@@ -1024,7 +1028,7 @@ async fn consume_json() -> Result<(), String> {
                     .await
                 {
                     Ok(_) => {
-                        match serde_json::Value::consume(
+                        match serde_json_1::Value::consume(
                             &v,
                             "select field1 from public.\"consume_json\";",
                             &[],
@@ -1038,7 +1042,7 @@ async fn consume_json() -> Result<(), String> {
                                         "Could not consume json into Value"
                                     );
 
-                                    match serde_json::Value::consume(
+                                    match serde_json_1::Value::consume(
                                         &v,
                                         "select field2 from public.\"consume_json\";",
                                         &[],
@@ -1078,7 +1082,7 @@ async fn consume_json() -> Result<(), String> {
 }
 
 #[tokio::test]
-#[cfg(feature = "uuid")]
+#[cfg(feature = "uuid_1")]
 async fn consume_uuid() -> Result<(), String> {
     db_env_assertion!();
 
@@ -1130,7 +1134,7 @@ async fn consume_uuid() -> Result<(), String> {
 }
 
 #[tokio::test]
-#[cfg(feature = "bit")]
+#[cfg(feature = "bit_0_6")]
 async fn consume_bits() -> Result<(), String> {
     db_env_assertion!();
 
@@ -1210,11 +1214,172 @@ async fn consume_bits() -> Result<(), String> {
 }
 
 #[tokio::test]
-#[cfg(feature = "consume_json")]
+#[cfg(feature = "bit_0_7")]
+async fn consume_bits() -> Result<(), String> {
+    db_env_assertion!();
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_bits (
+                    field1 bit(16),
+                    field2 varbit(16)
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                let test_bits = BitVec::from_bytes(&[0b10100000, 0b00010010]);
+
+                match v
+                    .query(
+                        "insert into public.\"consume_bits\" values ( $1, $2 );",
+                        &[&test_bits, &test_bits],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match BitVec::consume(
+                            &v,
+                            "select field1 from public.\"consume_bits\";",
+                            &[],
+                        )
+                        .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value, test_bits,
+                                        "Could not consume bit into BitVec"
+                                    );
+
+                                    match BitVec::consume(
+                                        &v,
+                                        "select field2 from public.\"consume_bits\";",
+                                        &[],
+                                    )
+                                    .await
+                                    {
+                                        Ok(result) => match result.last() {
+                                            Some(result_value) => {
+                                                assert_eq!(
+                                                    *result_value, test_bits,
+                                                    "Could not consume varbit into BitVec"
+                                                );
+
+                                                Ok(())
+                                            }
+                                            None => Err(String::from(
+                                                "Could not consume varbit into BitVec",
+                                            )),
+                                        },
+                                        Err(_) => Err(String::from(
+                                            "Could not consume varbit into BitVec",
+                                        )),
+                                    }
+                                }
+                                None => Err(String::from("Could not consume bit into BitVec")),
+                            },
+                            Err(_) => Err(String::from("Could not consume bit into BitVec")),
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[tokio::test]
+#[cfg(feature = "bit_0_8")]
+async fn consume_bits() -> Result<(), String> {
+    db_env_assertion!();
+
+    match connect_to_database().await {
+        Ok(v) => match v
+            .query(
+                "create table if not exists consume_bits (
+                    field1 bit(16),
+                    field2 varbit(16)
+                );",
+                &[],
+            )
+            .await
+        {
+            Ok(_) => {
+                let test_bits = BitVec::from_bytes(&[0b10100000, 0b00010010]);
+
+                match v
+                    .query(
+                        "insert into public.\"consume_bits\" values ( $1, $2 );",
+                        &[&test_bits, &test_bits],
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        match BitVec::consume(
+                            &v,
+                            "select field1 from public.\"consume_bits\";",
+                            &[],
+                        )
+                        .await
+                        {
+                            Ok(result) => match result.last() {
+                                Some(result_value) => {
+                                    assert_eq!(
+                                        *result_value, test_bits,
+                                        "Could not consume bit into BitVec"
+                                    );
+
+                                    match BitVec::consume(
+                                        &v,
+                                        "select field2 from public.\"consume_bits\";",
+                                        &[],
+                                    )
+                                    .await
+                                    {
+                                        Ok(result) => match result.last() {
+                                            Some(result_value) => {
+                                                assert_eq!(
+                                                    *result_value, test_bits,
+                                                    "Could not consume varbit into BitVec"
+                                                );
+
+                                                Ok(())
+                                            }
+                                            None => Err(String::from(
+                                                "Could not consume varbit into BitVec",
+                                            )),
+                                        },
+                                        Err(_) => Err(String::from(
+                                            "Could not consume varbit into BitVec",
+                                        )),
+                                    }
+                                }
+                                None => Err(String::from("Could not consume bit into BitVec")),
+                            },
+                            Err(_) => Err(String::from("Could not consume bit into BitVec")),
+                        }
+                    }
+                    Err(v) => Err(v.to_string()),
+                }
+            }
+            Err(v) => Err(v.to_string()),
+        },
+        Err(_) => Err(String::from("Could not connect to database")),
+    }
+}
+
+#[tokio::test]
+#[cfg(feature = "consume_json_1")]
 async fn consume_json_impl() -> Result<(), String> {
     db_env_assertion!();
 
     #[derive(Serialize, RowConsumer)]
+    #[serde(crate = "self::serde_1")]
     struct Foo {
         foo: i32,
         bar: i32,
@@ -1292,7 +1457,7 @@ async fn consume_option_unit() -> Result<(), String> {
     }
 }
 
-#[cfg(feature = "chrono")]
+#[cfg(feature = "chrono_0_4")]
 #[tokio::test]
 async fn consume_chrono_naivedatetime() -> Result<(), String> {
     db_env_assertion!();
@@ -1350,7 +1515,7 @@ async fn consume_chrono_naivedatetime() -> Result<(), String> {
     }
 }
 
-#[cfg(feature = "chrono")]
+#[cfg(feature = "chrono_0_4")]
 #[tokio::test]
 async fn consume_chrono_datetime_utc() -> Result<(), String> {
     db_env_assertion!();
@@ -1408,7 +1573,7 @@ async fn consume_chrono_datetime_utc() -> Result<(), String> {
     }
 }
 
-#[cfg(feature = "chrono")]
+#[cfg(feature = "chrono_0_4")]
 #[tokio::test]
 async fn consume_chrono_datetime_local() -> Result<(), String> {
     db_env_assertion!();
@@ -1466,7 +1631,7 @@ async fn consume_chrono_datetime_local() -> Result<(), String> {
     }
 }
 
-#[cfg(feature = "chrono")]
+#[cfg(feature = "chrono_0_4")]
 #[tokio::test]
 async fn consume_chrono_datetime_fixedoffset() -> Result<(), String> {
     db_env_assertion!();
@@ -1528,7 +1693,7 @@ async fn consume_chrono_datetime_fixedoffset() -> Result<(), String> {
     }
 }
 
-#[cfg(feature = "chrono")]
+#[cfg(feature = "chrono_0_4")]
 #[tokio::test]
 async fn consume_chrono_naivedate() -> Result<(), String> {
     db_env_assertion!();
@@ -1582,7 +1747,7 @@ async fn consume_chrono_naivedate() -> Result<(), String> {
     }
 }
 
-#[cfg(feature = "chrono")]
+#[cfg(feature = "chrono_0_4")]
 #[tokio::test]
 async fn consume_chrono_naivetime() -> Result<(), String> {
     db_env_assertion!();
@@ -1636,7 +1801,7 @@ async fn consume_chrono_naivetime() -> Result<(), String> {
     }
 }
 
-#[cfg(feature = "time")]
+#[cfg(feature = "time_0_3")]
 #[tokio::test]
 async fn consume_time_primitivedatetime() -> Result<(), String> {
     db_env_assertion!();
@@ -1652,7 +1817,9 @@ async fn consume_time_primitivedatetime() -> Result<(), String> {
             .await
         {
             Ok(_) => {
-                let test_datetime = datetime!(2020-01-01 0:00);
+                let test_datetime = Date::from_calendar_date(2020, Month::January, 1)
+                    .unwrap()
+                    .midnight();
 
                 match v
                     .query(
@@ -1695,7 +1862,7 @@ async fn consume_time_primitivedatetime() -> Result<(), String> {
     }
 }
 
-#[cfg(feature = "time")]
+#[cfg(feature = "time_0_3")]
 #[tokio::test]
 async fn consume_time_offsetdatetime() -> Result<(), String> {
     db_env_assertion!();
@@ -1711,7 +1878,10 @@ async fn consume_time_offsetdatetime() -> Result<(), String> {
             .await
         {
             Ok(_) => {
-                let test_datetime = datetime!(2020-01-01 0:00 UTC);
+                let test_datetime = Date::from_calendar_date(2020, Month::January, 1)
+                    .unwrap()
+                    .midnight()
+                    .assume_utc();
 
                 match v
                     .query(
@@ -1754,7 +1924,7 @@ async fn consume_time_offsetdatetime() -> Result<(), String> {
     }
 }
 
-#[cfg(feature = "time")]
+#[cfg(feature = "time_0_3")]
 #[tokio::test]
 async fn consume_time_date() -> Result<(), String> {
     db_env_assertion!();
@@ -1770,7 +1940,7 @@ async fn consume_time_date() -> Result<(), String> {
             .await
         {
             Ok(_) => {
-                let test_date = date!(2020 - 01 - 01);
+                let test_date = Date::from_calendar_date(2020, Month::January, 1).unwrap();
 
                 match v
                     .query(
@@ -1809,7 +1979,7 @@ async fn consume_time_date() -> Result<(), String> {
     }
 }
 
-#[cfg(feature = "time")]
+#[cfg(feature = "time_0_3")]
 #[tokio::test]
 async fn consume_time_time() -> Result<(), String> {
     db_env_assertion!();
@@ -1825,7 +1995,7 @@ async fn consume_time_time() -> Result<(), String> {
             .await
         {
             Ok(_) => {
-                let test_time = time!(5:00);
+                let test_time = Time::from_hms(5, 0, 0).unwrap();
 
                 match v
                     .query(

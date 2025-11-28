@@ -13,14 +13,14 @@ A variety of features provide support for additional implementation and types.
 
 | Feature | Description | Extra dependencies | Default |
 | ------- | ----------- | ------------------ | ------- |
-| `bit` | Implements crate on `bit_vec::BitVec` | bit-vec | No |
-| `chrono` | Implements crate on types supplied by chrono | chrono | No |
-| `consume_json` | Implements `consume_json` on classes that derive the `RowConsumer` trait | serde, serde_json | No |
-| `geo` | Implements crate on `geo_types::Point<f64>`, `geo_types::Rect<f64>`, and `geo_types::LineString<f64>` | geo-types | No |
-| `mac` | Implements crate on `eui48::MacAddress` | eui48 | No |
-| `json` | Implements crate on `serde_json::Value` | serde_json | No |
-| `time` | Implements crate on types supplied by time | time | No |
-| `uuid` | Implements crate on `uuid::Uuid` | uuid | No |
+| `bit_{0_6, 0_7, 0_8}` | Implements crate on `bit_vec::BitVec` | bit-vec | No |
+| `chrono_0_4` | Implements crate on types supplied by chrono | chrono | No |
+| `consume_json_1` | Implements `consume_json` on classes that derive the `RowConsumer` trait | serde, serde_json | No |
+| `geo_0_7` | Implements crate on `geo_types::Point<f64>`, `geo_types::Rect<f64>`, and `geo_types::LineString<f64>` | geo-types | No |
+| `mac_1` | Implements crate on `eui48::MacAddress` | eui48 | No |
+| `json_1` | Implements crate on `serde_json::Value` | serde_json | No |
+| `time_0_3` | Implements crate on types supplied by time | time | No |
+| `uuid_1` | Implements crate on `uuid::Uuid` | uuid | No |
 
 ## Examples
 You may use `consume` to consume PostgreSQL row data into a struct like so.
@@ -87,23 +87,23 @@ This crate also provides implementations on a variety of data types, some provid
 | `String` | `default` |
 | `SystemTime` | `default` |
 | `IpAddr` | `default` |
-| `bit_vec::BitVec` | `bit` |
-| `chrono::NaiveDateTime` | `chrono` |
-| `chrono::DateTime<Utc>` | `chrono` |
-| `chrono::DateTime<Local>` | `chrono` |
-| `chrono::DateTime<FixedOffset>` | `chrono` |
-| `chrono::NaiveDate` | `chrono` |
-| `chrono::NaiveTime` | `chrono` |
-| `geo_types::Point<f64>` | `geo` |
-| `geo_types::Rect<f64>` | `geo` |
-| `geo_types::LineString<f64>` | `geo` |
-| `eui48::MacAddress` | `mac` |
-| `serde_json::Value` | `json` |
-| `time::PrimitiveDateTime` | `time` |
-| `time::OffsetDateTime` | `time` |
-| `time::Date` | `time` |
-| `time::Time` | `time` |
-| `uuid::Uuid` | `uuid` |
+| `bit_vec::BitVec` | `bit_{0_6, 0_7, 0_8}` |
+| `chrono::NaiveDateTime` | `chrono_0_4` |
+| `chrono::DateTime<Utc>` | `chrono_0_4` |
+| `chrono::DateTime<Local>` | `chrono_0_4` |
+| `chrono::DateTime<FixedOffset>` | `chrono_0_4` |
+| `chrono::NaiveDate` | `chrono_0_4` |
+| `chrono::NaiveTime` | `chrono_0_4` |
+| `geo_types::Point<f64>` | `geo_0_7` |
+| `geo_types::Rect<f64>` | `geo_0_7` |
+| `geo_types::LineString<f64>` | `geo_0_7` |
+| `eui48::MacAddress` | `mac_1` |
+| `serde_json::Value` | `json_1` |
+| `time::PrimitiveDateTime` | `time_0_3` |
+| `time::OffsetDateTime` | `time_0_3` |
+| `time::Date` | `time_0_3` |
+| `time::Time` | `time_0_3` |
+| `uuid::Uuid` | `uuid_1` |
 
 ## Testing
 Testing requires access to a PostgreSQL database with no tables. Setting the following environment variables will allow you to test.

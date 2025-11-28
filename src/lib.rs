@@ -13,14 +13,14 @@
 //!
 //! | Feature | Description | Extra dependencies | Default |
 //! | ------- | ----------- | ------------------ | ------- |
-//! | `bit` | Implements crate on `bit_vec::BitVec` | bit-vec | No |
-//! | `chrono` | Implements crate on types supplied by chrono | chrono | No |
-//! | `consume_json` | Implements `consume_json` on classes that derive the `RowConsumer` trait | serde, serde_json | No |
-//! | `geo` | Implements crate on `geo_types::Point<f64>`, `geo_types::Rect<f64>`, and `geo_types::LineString<f64>` | geo-types | No |
-//! | `mac` | Implements crate on `eui48::MacAddress` | eui48 | No |
-//! | `json` | Implements crate on `serde_json::Value` | serde_json | No |
-//! | `time` | Implements crate on types supplied by time | time | No |
-//! | `uuid` | Implements crate on `uuid::Uuid` | uuid | No |
+//! | `bit_{0_6, 0_7, 0_8}` | Implements crate on `bit_vec::BitVec` | bit-vec | No |
+//! | `chrono_0_4` | Implements crate on types supplied by chrono | chrono | No |
+//! | `consume_json_1` | Implements `consume_json` on classes that derive the `RowConsumer` trait | serde, serde_json | No |
+//! | `geo_0_7` | Implements crate on `geo_types::Point<f64>`, `geo_types::Rect<f64>`, and `geo_types::LineString<f64>` | geo-types | No |
+//! | `mac_1` | Implements crate on `eui48::MacAddress` | eui48 | No |
+//! | `json_1` | Implements crate on `serde_json::Value` | serde_json | No |
+//! | `time_0_3` | Implements crate on types supplied by time | time | No |
+//! | `uuid_1` | Implements crate on `uuid::Uuid` | uuid | No |
 //!
 //! ## Examples
 //! You may use `consume` to consume PostgreSQL row data into a struct like so.
@@ -87,23 +87,23 @@
 //! | `String` | `default` |
 //! | `SystemTime` | `default` |
 //! | `IpAddr` | `default` |
-//! | `bit_vec::BitVec` | `bit` |
-//! | `chrono::NaiveDateTime` | `chrono` |
-//! | `chrono::DateTime<Utc>` | `chrono` |
-//! | `chrono::DateTime<Local>` | `chrono` |
-//! | `chrono::DateTime<FixedOffset>` | `chrono` |
-//! | `chrono::NaiveDate` | `chrono` |
-//! | `chrono::NaiveTime` | `chrono` |
-//! | `geo_types::Point<f64>` | `geo` |
-//! | `geo_types::Rect<f64>` | `geo` |
-//! | `geo_types::LineString<f64>` | `geo` |
-//! | `eui48::MacAddress` | `mac` |
-//! | `serde_json::Value` | `json` |
-//! | `time::PrimitiveDateTime` | `time` |
-//! | `time::OffsetDateTime` | `time` |
-//! | `time::Date` | `time` |
-//! | `time::Time` | `time` |
-//! | `uuid::Uuid` | `uuid` |
+//! | `bit_vec::BitVec` | `bit_{0_6, 0_7, 0_8}` |
+//! | `chrono::NaiveDateTime` | `chrono_0_4` |
+//! | `chrono::DateTime<Utc>` | `chrono_0_4` |
+//! | `chrono::DateTime<Local>` | `chrono_0_4` |
+//! | `chrono::DateTime<FixedOffset>` | `chrono_0_4` |
+//! | `chrono::NaiveDate` | `chrono_0_4` |
+//! | `chrono::NaiveTime` | `chrono_0_4` |
+//! | `geo_types::Point<f64>` | `geo_0_7` |
+//! | `geo_types::Rect<f64>` | `geo_0_7` |
+//! | `geo_types::LineString<f64>` | `geo_0_7` |
+//! | `eui48::MacAddress` | `mac_1` |
+//! | `serde_json::Value` | `json_1` |
+//! | `time::PrimitiveDateTime` | `time_0_3` |
+//! | `time::OffsetDateTime` | `time_0_3` |
+//! | `time::Date` | `time_0_3` |
+//! | `time::Time` | `time_0_3` |
+//! | `uuid::Uuid` | `uuid_1` |
 //!
 //! ## Testing
 //! Testing requires access to a PostgreSQL database with no tables. Setting the following environment variables will allow you to test.
@@ -114,35 +114,39 @@
 //! | `POSTGRES_USER` | The user credential to provide. |
 //! | `POSTGRES_PASSWORD` | The password to provide. |
 //! | `POSTGRES_DB` | The name of the database to use for testing. |
-#[cfg(feature = "bit")]
-use bit_vec::BitVec;
-#[cfg(feature = "chrono")]
-use chrono::prelude::*;
-#[cfg(feature = "mac")]
-use eui48::MacAddress;
-#[cfg(feature = "geo")]
-use geo_types::coord;
-#[cfg(feature = "geo")]
-use geo_types::line_string;
-#[cfg(feature = "geo")]
-use geo_types::LineString;
-#[cfg(feature = "geo")]
-use geo_types::Point;
-#[cfg(feature = "geo")]
-use geo_types::Rect;
-#[cfg(feature = "consume_json")]
-use serde::Serialize;
+#[cfg(feature = "bit_0_6")]
+use bit_vec_0_6::BitVec;
+#[cfg(feature = "bit_0_7")]
+use bit_vec_0_7::BitVec;
+#[cfg(feature = "bit_0_8")]
+use bit_vec_0_8::BitVec;
+#[cfg(feature = "chrono_0_4")]
+use chrono_0_4::prelude::*;
+#[cfg(feature = "mac_1")]
+use eui48_1::MacAddress;
+#[cfg(feature = "geo_0_7")]
+use geo_types_0_7::coord;
+#[cfg(feature = "geo_0_7")]
+use geo_types_0_7::line_string;
+#[cfg(feature = "geo_0_7")]
+use geo_types_0_7::LineString;
+#[cfg(feature = "geo_0_7")]
+use geo_types_0_7::Point;
+#[cfg(feature = "geo_0_7")]
+use geo_types_0_7::Rect;
+#[cfg(feature = "consume_json_1")]
+use serde_1::{self, Serialize};
 use std::future::Future;
 use std::net::IpAddr;
 use std::net::Ipv4Addr;
 use std::time::SystemTime;
-#[cfg(feature = "time")]
-use time::{Date, OffsetDateTime, PrimitiveDateTime, Time};
+#[cfg(feature = "time_0_3")]
+use time_0_3::{Date, OffsetDateTime, PrimitiveDateTime, Time};
 use tokio_postgres::row::Row;
 use tokio_postgres::types::ToSql;
 use tokio_postgres::Client;
-#[cfg(feature = "uuid")]
-use uuid::Uuid;
+#[cfg(feature = "uuid_1")]
+use uuid_1::Uuid;
 
 /// Errors that may occur during row consumption.
 pub enum ConsumeError {
@@ -399,7 +403,7 @@ pub trait RowConsumer {
     /// };
     /// # })
     /// ```
-    #[cfg(feature = "consume_json")]
+    #[cfg(feature = "consume_json_1")]
     fn consume_json(
         conn: &Client,
         query: &str,
@@ -410,11 +414,11 @@ pub trait RowConsumer {
     {
         async move {
             match &Self::consume(conn, query, params).await {
-                Ok(v) => match serde_json::to_string(v) {
+                Ok(v) => match serde_json_1::to_string(v) {
                     Ok(v) => Ok(v),
-                    Err(_) => Err(serde_json::Value::default().to_string()),
+                    Err(_) => Err(serde_json_1::Value::default().to_string()),
                 },
-                Err(_) => Err(serde_json::Value::default().to_string()),
+                Err(_) => Err(serde_json_1::Value::default().to_string()),
             }
         }
     }
@@ -527,10 +531,14 @@ pg_type_expr_implementation![
     Some(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)))
 ];
 
-#[cfg(feature = "bit")]
+#[cfg(feature = "bit_0_6")]
+pg_type_implementation![BitVec, Vec<BitVec>, Option<BitVec>];
+#[cfg(feature = "bit_0_7")]
+pg_type_implementation![BitVec, Vec<BitVec>, Option<BitVec>];
+#[cfg(feature = "bit_0_8")]
 pg_type_implementation![BitVec, Vec<BitVec>, Option<BitVec>];
 
-#[cfg(feature = "chrono")]
+#[cfg(feature = "chrono_0_4")]
 pg_type_implementation![
     NaiveDateTime,
     DateTime<Utc>,
@@ -552,10 +560,10 @@ pg_type_implementation![
     Option<NaiveTime>
 ];
 
-#[cfg(feature = "geo")]
+#[cfg(feature = "geo_0_7")]
 pg_type_implementation![Point<f64>, Vec<Point<f64>>, Option<Point<f64>>];
 
-#[cfg(feature = "geo")]
+#[cfg(feature = "geo_0_7")]
 pg_type_expr_implementation![
     Rect<f64>,
     Rect::new(coord! { x: 0., y: 0.}, coord! { x: 1., y: 1.},),
@@ -580,10 +588,10 @@ pg_type_expr_implementation![
     ])
 ];
 
-#[cfg(feature = "mac")]
+#[cfg(feature = "mac_1")]
 pg_type_implementation![MacAddress, Vec<MacAddress>, Option<MacAddress>];
 
-#[cfg(feature = "time")]
+#[cfg(feature = "time_0_3")]
 pg_type_expr_implementation![
     PrimitiveDateTime,
     PrimitiveDateTime::MIN,
@@ -611,12 +619,12 @@ pg_type_expr_implementation![
     Some(Time::MIDNIGHT)
 ];
 
-#[cfg(feature = "uuid")]
+#[cfg(feature = "uuid_1")]
 pg_type_implementation![Uuid, Vec<Uuid>, Option<Uuid>];
 
-#[cfg(feature = "json")]
+#[cfg(feature = "json_1")]
 pg_type_implementation![
-    serde_json::Value,
-    Vec<serde_json::Value>,
-    Option<serde_json::Value>
+    serde_json_1::Value,
+    Vec<serde_json_1::Value>,
+    Option<serde_json_1::Value>
 ];

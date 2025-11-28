@@ -1,37 +1,37 @@
 //! Attempts to test a variety of `consume` scenarios for data types mentioned in the provided `FromSql` type implementations from postgres_types.
 #[cfg(feature = "bit_0_6")]
-use bit_vec::BitVec;
+use bit_vec_0_6::BitVec;
 #[cfg(feature = "bit_0_7")]
-use bit_vec::BitVec;
+use bit_vec_0_7::BitVec;
 #[cfg(feature = "bit_0_8")]
-use bit_vec::BitVec;
+use bit_vec_0_8::BitVec;
 #[cfg(feature = "chrono_0_4")]
-use chrono::prelude::*;
+use chrono_0_4::prelude::*;
 #[cfg(feature = "mac_1")]
-use eui48::MacAddress;
+use eui48_1::MacAddress;
 #[cfg(feature = "geo_0_7")]
-use geo_types::coord;
+use geo_types_0_7::coord;
 #[cfg(feature = "geo_0_7")]
-use geo_types::line_string;
+use geo_types_0_7::line_string;
 #[cfg(feature = "geo_0_7")]
-use geo_types::point;
+use geo_types_0_7::point;
 #[cfg(feature = "geo_0_7")]
-use geo_types::Rect;
+use geo_types_0_7::Rect;
 use pgde::RowConsumer;
 use pgde_derive::RowConsumer;
 #[cfg(feature = "consume_json_1")]
-use serde::Serialize;
+use serde_1::Serialize;
 #[cfg(feature = "json_1")]
-use serde_json::json;
+use serde_json_1::json;
 use std::net::IpAddr;
 use std::net::Ipv4Addr;
 use std::time::SystemTime;
 #[cfg(feature = "time_0_3")]
-use time::{macros::*, Date, OffsetDateTime, PrimitiveDateTime, Time};
+use time_0_3::{macros::*, Date, OffsetDateTime, PrimitiveDateTime, Time};
 use tokio_postgres::Row;
 use tokio_postgres::{Client, NoTls};
 #[cfg(feature = "uuid_1")]
-use uuid::Uuid;
+use uuid_1::Uuid;
 
 #[macro_export]
 macro_rules! db_env_assertion {

@@ -121,32 +121,32 @@ use bit_vec_0_7::BitVec;
 #[cfg(feature = "bit_0_8")]
 use bit_vec_0_8::BitVec;
 #[cfg(feature = "chrono_0_4")]
-use chrono::prelude::*;
+use chrono_0_4::prelude::*;
 #[cfg(feature = "mac_1")]
-use eui48::MacAddress;
+use eui48_1::MacAddress;
 #[cfg(feature = "geo_0_7")]
-use geo_types::coord;
+use geo_types_0_7::coord;
 #[cfg(feature = "geo_0_7")]
-use geo_types::line_string;
+use geo_types_0_7::line_string;
 #[cfg(feature = "geo_0_7")]
-use geo_types::LineString;
+use geo_types_0_7::LineString;
 #[cfg(feature = "geo_0_7")]
-use geo_types::Point;
+use geo_types_0_7::Point;
 #[cfg(feature = "geo_0_7")]
-use geo_types::Rect;
+use geo_types_0_7::Rect;
 #[cfg(feature = "consume_json_1")]
-use serde::Serialize;
+use serde_1::Serialize;
 use std::future::Future;
 use std::net::IpAddr;
 use std::net::Ipv4Addr;
 use std::time::SystemTime;
 #[cfg(feature = "time_0_3")]
-use time::{Date, OffsetDateTime, PrimitiveDateTime, Time};
+use time_0_3::{Date, OffsetDateTime, PrimitiveDateTime, Time};
 use tokio_postgres::row::Row;
 use tokio_postgres::types::ToSql;
 use tokio_postgres::Client;
 #[cfg(feature = "uuid_1")]
-use uuid::Uuid;
+use uuid_1::Uuid;
 
 /// Errors that may occur during row consumption.
 pub enum ConsumeError {
@@ -414,11 +414,11 @@ pub trait RowConsumer {
     {
         async move {
             match &Self::consume(conn, query, params).await {
-                Ok(v) => match serde_json::to_string(v) {
+                Ok(v) => match serde_json_1::to_string(v) {
                     Ok(v) => Ok(v),
-                    Err(_) => Err(serde_json::Value::default().to_string()),
+                    Err(_) => Err(serde_json_1::Value::default().to_string()),
                 },
-                Err(_) => Err(serde_json::Value::default().to_string()),
+                Err(_) => Err(serde_json_1::Value::default().to_string()),
             }
         }
     }
@@ -624,7 +624,7 @@ pg_type_implementation![Uuid, Vec<Uuid>, Option<Uuid>];
 
 #[cfg(feature = "json_1")]
 pg_type_implementation![
-    serde_json::Value,
-    Vec<serde_json::Value>,
-    Option<serde_json::Value>
+    serde_json_1::Value,
+    Vec<serde_json_1::Value>,
+    Option<serde_json_1::Value>
 ];

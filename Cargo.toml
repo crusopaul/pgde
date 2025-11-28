@@ -9,6 +9,7 @@ description = "A macro library for consuming PostgreSQL row data into structs."
 readme = "README.md"
 categories = [ "api-bindings", "development-tools::ffi", "rust-patterns" ]
 keywords = ["postgresql"]
+doctest = false
 
 [features]
 bit_0_6 = ["dep:bit-vec_0_6", "tokio-postgres/with-bit-vec-0_6"]

@@ -63,4 +63,7 @@ jobs:
         cargo test -Ftime_0_3
         cargo test -Fuuid_1
     - name: Test all features
-      run: cargo test --all-features
+      run: |
+        cargo test -Fbit_0_6 -Fchrono_0_4 -Fconsume_json_1 -Fgeo_0_7 -Fmac_1 -Fjson_1 -Ftime_0_3 -Fuuid_1
+        cargo test -Fbit_0_7 -Fchrono_0_4 -Fconsume_json_1 -Fgeo_0_7 -Fmac_1 -Fjson_1 -Ftime_0_3 -Fuuid_1
+        cargo test -Fbit_0_8 -Fchrono_0_4 -Fconsume_json_1 -Fgeo_0_7 -Fmac_1 -Fjson_1 -Ftime_0_3 -Fuuid_1

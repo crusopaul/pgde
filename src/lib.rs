@@ -135,7 +135,7 @@ use geo_types_0_7::Point;
 #[cfg(feature = "geo_0_7")]
 use geo_types_0_7::Rect;
 #[cfg(feature = "consume_json_1")]
-use serde_1::Serialize;
+use serde_1::{self, Serialize};
 use std::future::Future;
 use std::net::IpAddr;
 use std::net::Ipv4Addr;
@@ -370,10 +370,11 @@ pub trait RowConsumer {
     /// use pgde::ConsumeError;
     /// use pgde::RowConsumer;
     /// use pgde_derive::RowConsumer;
-    /// use serde::Serialize;
+    /// use serde_1::{self, Serialize};
     /// use tokio_postgres::{NoTls, Row};
     ///
     /// #[derive(Serialize, RowConsumer)]
+    /// #[serde(crate = "self::serde_1")]
     /// struct Foo {
     ///     Id: i32,
     ///     Data: String,

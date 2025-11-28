@@ -115,11 +115,11 @@
 //! | `POSTGRES_PASSWORD` | The password to provide. |
 //! | `POSTGRES_DB` | The name of the database to use for testing. |
 #[cfg(feature = "bit_0_6")]
-use bit_vec::BitVec;
+use bit_vec_0_6::BitVec;
 #[cfg(feature = "bit_0_7")]
-use bit_vec::BitVec;
+use bit_vec_0_7::BitVec;
 #[cfg(feature = "bit_0_8")]
-use bit_vec::BitVec;
+use bit_vec_0_8::BitVec;
 #[cfg(feature = "chrono_0_4")]
 use chrono::prelude::*;
 #[cfg(feature = "mac_1")]

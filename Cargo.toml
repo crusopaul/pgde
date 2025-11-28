@@ -9,6 +9,8 @@ description = "A macro library for consuming PostgreSQL row data into structs."
 readme = "README.md"
 categories = [ "api-bindings", "development-tools::ffi", "rust-patterns" ]
 keywords = ["postgresql"]
+
+[lib]
 doctest = false
 
 [features]

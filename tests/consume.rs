@@ -27,7 +27,7 @@ use std::net::IpAddr;
 use std::net::Ipv4Addr;
 use std::time::SystemTime;
 #[cfg(feature = "time_0_3")]
-use time_0_3::{macros::*, Date, OffsetDateTime, PrimitiveDateTime, Time};
+use time_0_3::{Date, Month, OffsetDateTime, PrimitiveDateTime, Time};
 use tokio_postgres::Row;
 use tokio_postgres::{Client, NoTls};
 #[cfg(feature = "uuid_1")]
@@ -843,7 +843,7 @@ async fn consume_point() -> Result<(), String> {
                     .await
                 {
                     Ok(_) => {
-                        match geo_types::Point::<f64>::consume(
+                        match geo_types_0_7::Point::<f64>::consume(
                             &v,
                             "select field1 from public.\"consume_point\";",
                             &[],
@@ -901,7 +901,7 @@ async fn consume_rect() -> Result<(), String> {
                     .await
                 {
                     Ok(_) => {
-                        match geo_types::Rect::<f64>::consume(
+                        match geo_types_0_7::Rect::<f64>::consume(
                             &v,
                             "select field1 from public.\"consume_rect\";",
                             &[],
@@ -960,7 +960,7 @@ async fn consume_linestring() -> Result<(), String> {
                     .await
                 {
                     Ok(_) => {
-                        match geo_types::LineString::<f64>::consume(
+                        match geo_types_0_7::LineString::<f64>::consume(
                             &v,
                             "select field1 from public.\"consume_linestring\";",
                             &[],
@@ -1028,7 +1028,7 @@ async fn consume_json() -> Result<(), String> {
                     .await
                 {
                     Ok(_) => {
-                        match serde_json::Value::consume(
+                        match serde_json_1::Value::consume(
                             &v,
                             "select field1 from public.\"consume_json\";",
                             &[],
@@ -1042,7 +1042,7 @@ async fn consume_json() -> Result<(), String> {
                                         "Could not consume json into Value"
                                     );
 
-                                    match serde_json::Value::consume(
+                                    match serde_json_1::Value::consume(
                                         &v,
                                         "select field2 from public.\"consume_json\";",
                                         &[],
@@ -1817,7 +1817,7 @@ async fn consume_time_primitivedatetime() -> Result<(), String> {
             .await
         {
             Ok(_) => {
-                let test_datetime = datetime!(2020-01-01 0:00);
+                let test_datetime = Date::from_calendar_date(2020, Month::January, 1).unwrap().midnight();
 
                 match v
                     .query(
@@ -1876,7 +1876,7 @@ async fn consume_time_offsetdatetime() -> Result<(), String> {
             .await
         {
             Ok(_) => {
-                let test_datetime = datetime!(2020-01-01 0:00 UTC);
+                let test_datetime = Date::from_calendar_date(2020, Month::January, 1).unwrap().midnight().assume_utc();
 
                 match v
                     .query(
@@ -1935,7 +1935,7 @@ async fn consume_time_date() -> Result<(), String> {
             .await
         {
             Ok(_) => {
-                let test_date = date!(2020 - 01 - 01);
+                let test_date = Date::from_calendar_date(2020, Month::January, 1).unwrap();
 
                 match v
                     .query(
@@ -1990,7 +1990,7 @@ async fn consume_time_time() -> Result<(), String> {
             .await
         {
             Ok(_) => {
-                let test_time = time!(5:00);
+                let test_time = Time::from_hms(5, 0, 0).unwrap();
 
                 match v
                     .query(

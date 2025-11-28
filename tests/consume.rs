@@ -1817,7 +1817,9 @@ async fn consume_time_primitivedatetime() -> Result<(), String> {
             .await
         {
             Ok(_) => {
-                let test_datetime = Date::from_calendar_date(2020, Month::January, 1).unwrap().midnight();
+                let test_datetime = Date::from_calendar_date(2020, Month::January, 1)
+                    .unwrap()
+                    .midnight();
 
                 match v
                     .query(
@@ -1876,7 +1878,10 @@ async fn consume_time_offsetdatetime() -> Result<(), String> {
             .await
         {
             Ok(_) => {
-                let test_datetime = Date::from_calendar_date(2020, Month::January, 1).unwrap().midnight().assume_utc();
+                let test_datetime = Date::from_calendar_date(2020, Month::January, 1)
+                    .unwrap()
+                    .midnight()
+                    .assume_utc();
 
                 match v
                     .query(

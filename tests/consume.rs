@@ -20,7 +20,7 @@ use geo_types_0_7::Rect;
 use pgde::RowConsumer;
 use pgde_derive::RowConsumer;
 #[cfg(feature = "consume_json_1")]
-use serde_1::Serialize;
+use serde_1::{self, Serialize};
 #[cfg(feature = "json_1")]
 use serde_json_1::json;
 use std::net::IpAddr;
@@ -1379,6 +1379,7 @@ async fn consume_json_impl() -> Result<(), String> {
     db_env_assertion!();
 
     #[derive(Serialize, RowConsumer)]
+    #[serde(crate = "self::serde_1")]
     struct Foo {
         foo: i32,
         bar: i32,
